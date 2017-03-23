@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 cffi_modules = [
-    'cffi_builders/ract_dma_build.py:ffi',
+    'cffi_builders/ract_dma_c_build.py:ffi',
 ]
 
 

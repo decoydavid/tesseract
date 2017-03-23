@@ -12,7 +12,7 @@ ffi.cdef("""
 """)
 
 sdl = ffi.set_source(
-    "ract._ract_dma",
+    "ract._ract_dma_c",
     libraries=[],
     include_dirs=get_inc_dir(),
     library_dirs=get_lib_dir(),
