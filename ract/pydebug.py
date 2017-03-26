@@ -1,76 +1,89 @@
-
-import time
+""" Pure Python debugging tools for the tesseract. """
 
 import RPi.GPIO as GPIO
 
 
-dCData_dec = [
-    63, # Channel 15
-    63, # Channel 14
-    63, # Channel 13
-    63, # Channel 12
-    63, # Channel 11
-    63, # Channel 10
-    63, # Channel 9
-    63, # Channel 8
-    63, # Channel 7
-    63, # Channel 6
-    63, # Channel 5
-    63, # Channel 4
-    63, # Channel 3
-    63, # Channel 2
-    63, # Channel 1
-    63, # Channel 0
+dc_data = [
+    63,  # Channel 15
+    63,  # Channel 14
+    63,  # Channel 13
+    63,  # Channel 12
+    63,  # Channel 11
+    63,  # Channel 10
+    63,  # Channel 9
+    63,  # Channel 8
+    63,  # Channel 7
+    63,  # Channel 6
+    63,  # Channel 5
+    63,  # Channel 4
+    63,  # Channel 3
+    63,  # Channel 2
+    63,  # Channel 1
+    63,  # Channel 0
 ]
 
 
 gsData1 = [
-    4095, # Channel 15
-    4095, # Channel 14
-    4095, # Channel 13
-    4095, # Channel 12
-    4095, # Channel 11
-    4095, # Channel 10
-    4095, # Channel 9
-    4095, # Channel 8
-    4095, # Channel 7
-    4095, # Channel 6
-    4095, # Channel 5
-    4095, # Channel 4
-    4095, # Channel 3
-    4095, # Channel 2
-    4095, # Channel 1
-    4095, # Channel 0
-]  
-
-
-gsData0 = [
-    0, # Channel 15
-    0, # Channel 14
-    0, # Channel 13
-    0, # Channel 12
-    0, # Channel 11
-    0, # Channel 10
-    0, # Channel 9
-    0, # Channel 8
-    0, # Channel 7
-    0, # Channel 6
-    0, # Channel 5
-    0, # Channel 4
-    0, # Channel 3
-    0, # Channel 2
-    0, # Channel 1
-    0, # Channel 0
+    4095,  # Channel 15
+    4095,  # Channel 14
+    4095,  # Channel 13
+    4095,  # Channel 12
+    4095,  # Channel 11
+    4095,  # Channel 10
+    4095,  # Channel 9
+    4095,  # Channel 8
+    4095,  # Channel 7
+    4095,  # Channel 6
+    4095,  # Channel 5
+    4095,  # Channel 4
+    4095,  # Channel 3
+    4095,  # Channel 2
+    4095,  # Channel 1
+    4095,  # Channel 0
 ]
 
 
-GSCLK = 3   #Orange
-DCPRG = 5   #Brown
-SCLK = 8    #White
-XLAT = 10   #Blue
-BLANK = 11  #Black
-SIN = 12    #Red
-VPRG = 13   #White/Green
+gsData0 = [
+    0,  # Channel 15
+    0,  # Channel 14
+    0,  # Channel 13
+    0,  # Channel 12
+    0,  # Channel 11
+    0,  # Channel 10
+    0,  # Channel 9
+    0,  # Channel 8
+    0,  # Channel 7
+    0,  # Channel 6
+    0,  # Channel 5
+    0,  # Channel 4
+    0,  # Channel 3
+    0,  # Channel 2
+    0,  # Channel 1
+    0,  # Channel 0
+]
+
+sheet_correction_mapping = [
+    6, 7, 0, 1, 3, 2, 5, 4
+]
+
+layer_mask = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095],
+]
+
+GSCLK = 3   # Orange
+DCPRG = 5   # Brown
+SCLK = 8    # White
+XLAT = 10   # Blue
+BLANK = 11  # Black
+SIN = 12    # Red
+VPRG = 13   # White / Green
 
 
 def set_pin(pin, value):
@@ -93,6 +106,7 @@ def set_pin(pin, value):
         GPIO.output(pin, True)
         GPIO.output(pin, True)
 
+
 def get_pin(pin):
     """ Read GPIO pin.
 
@@ -106,14 +120,15 @@ def get_pin(pin):
 def test_pins():
     """ Toggle all pins high and low for testing.
     """
-    for i, name in [[GSCLK, 'GSCLK'], [DCPRG, 'DCPRG'], [VPRG, 'VPRG'],
-                    [SCLK, 'SCLK'], [XLAT, 'XLAT'], [SIN, 'SIN'], [BLANK, 'BLANK']]:
+    for i, name in [
+            [GSCLK, 'GSCLK'], [DCPRG, 'DCPRG'], [VPRG, 'VPRG'],
+            [SCLK, 'SCLK'], [XLAT, 'XLAT'], [SIN, 'SIN'], [BLANK, 'BLANK']]:
         print('Toggling %s (pin %d)' % (name, i))
         set_pin(i, True)
         raw_input("High")
         set_pin(i, False)
         raw_input("Low")
-    
+
 
 def send_DC_byte(value_to_send, no_bits):
     for i in range(no_bits):
@@ -124,6 +139,7 @@ def send_DC_byte(value_to_send, no_bits):
 
 
 def send_GS_byte(value_to_send, no_bits):
+    print(value_to_send)
     for i in range(no_bits):
         bit = (value_to_send >> i) & 0x01
         set_pin(SIN, bit)
@@ -136,11 +152,11 @@ def latch_data():
     set_pin(XLAT, False)
 
 
-def clock_in_dot_correction():
+def clock_in_dot_correction(data):
     set_pin(DCPRG, True)
     set_pin(VPRG, True)
-    for i in range(len(dCData_dec)):
-        send_DC_byte(dCData_dec[i], 6)
+    for v in data:
+        send_DC_byte(v, 6)
     latch_data()
 
 
@@ -173,7 +189,7 @@ def clock_in_grey_scale_data(data_to_send):
         set_pin(SCLK, False)
         first_cycle_flag = 0
         print('GS out: First cycle')
-        
+
 
 if __name__ == '__main__':
     print('Main')
@@ -191,24 +207,21 @@ if __name__ == '__main__':
     set_pin(SCLK, False)
     set_pin(XLAT, False)
     set_pin(BLANK, True)
-  
+
     try:
-        #test_pins()
-        clock_in_dot_correction()
-        clock_in_grey_scale_data(gsData1 * 5)
-        toggle_gsclk(50000)
-        clock_in_grey_scale_data(gsData0 * 5)
-        toggle_gsclk(50000)
-        clock_in_grey_scale_data(gsData1 * 5)
-        toggle_gsclk(50000)
-        clock_in_grey_scale_data(gsData0 * 5)
-        toggle_gsclk(50000)
-        if False:
-            for i in range(0, 4095, 128):
-                data = [i] * 16 * 5
-                t0 = time.time()
-                while 0.1 > time.time() - t0:
-                    clock_in_grey_scale_data(data)
+        test_pins()
+        clock_in_dot_correction(dc_data * 5)
+        for layer in layer_mask:
+            clock_in_grey_scale_data(gsData1 * 4 + layer)
+            toggle_gsclk(1000)
+        for i in sheet_correction_mapping:
+            for j in range(8):
+                for layer in layer_mask:
+                    data = [0] * 16 * 4
+                    data[i * 8 + j] = 4095
+                    clock_in_grey_scale_data(data + layer)
+                    toggle_gsclk(1000)
+
     except Exception as e:
         print('Exception caught %s' % e)
     finally:
