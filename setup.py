@@ -1,5 +1,3 @@
-import sys
-
 from setuptools import setup
 
 
@@ -25,11 +23,17 @@ setup(
     cffi_modules=cffi_modules,
     install_requires=[
         'cffi>=1.3.0',
+        'click',
     ],
+    entry_points='''
+        [console_scripts]
+        ract=ract.cli:ract
+    ''',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'License :: OSI Approved :: '
+        'GNU General Public License v3 or later (GPLv3+)',
         'Operating System :: POSIX',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
