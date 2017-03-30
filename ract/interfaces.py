@@ -51,12 +51,3 @@ class ArtworkRenderer(object):
             :return numpy.array:
                 The frame to render. An 8 x 8 x 8 numpy array.
         """
-
-
-def registry(cls):
-    """ Return a dictionary mapping names of sub-classes of an interface
-        class to the sub-classes.
-    """
-    return {
-        subcls.__name__: subcls for subcls in cls.__subclasses__()
-    }

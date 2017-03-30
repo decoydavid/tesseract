@@ -4,10 +4,11 @@ import time
 
 import click
 
-from .interfaces import CubeController, ArtworkRenderer, registry
+from .cubes import CUBES
+from .art import ART
 
-CUBES = registry(CubeController)
-ART = registry(ArtworkRenderer)
+CUBES = {cube.NAME: cube for cube in CUBES}
+ART = {art.NAME: art for art in ART}
 
 
 @click.command()
@@ -19,10 +20,10 @@ ART = registry(ArtworkRenderer)
     help="Artwork to render.")
 @click.option(
     "--fps", default=60.,
-    help="Frames to render each second.")
+    help="Frames to render each second. Default is 60.")
 @click.option(
-    "--seconds", default=60.,
-    help="Number of seconds to run for.")
+    "--seconds", default=10.,
+    help="Number of seconds to run for. Default is 10.")
 def ract(cube, art, fps, seconds):
     """ Run the tesseract. """
     cube = CUBES[cube]()
