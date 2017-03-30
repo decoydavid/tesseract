@@ -11,6 +11,9 @@ class GPIOController(CubeController):
     def setup(self, fps):
         pass
 
+    def teardown(self):
+        pass
+
     def render(self, frame):
         pass
 

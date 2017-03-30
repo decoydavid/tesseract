@@ -20,6 +20,9 @@ class CubeController(object):
                 The frames per second that the artwork will be rendered at.
         """
 
+    def teardown(self):
+        """ Perform any cleanup needed. """
+
     def render(self, frame):
         """ This method arranges for the frame to be clocked in.
 

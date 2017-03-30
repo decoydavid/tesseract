@@ -37,3 +37,5 @@ def ract(cube, art, fps, seconds):
         frame = art.next_frame()
         cube.render(frame)
         cube.tick()
+
+    cube.teardown()
