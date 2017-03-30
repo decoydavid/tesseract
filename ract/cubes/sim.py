@@ -9,10 +9,15 @@ class SimulatedController(CubeController):
     NAME = 'sim'
 
     def setup(self, fps):
-        pass
+        from .sim_pygame import SimCube
+        self._sim_cube = SimCube()
+        self._sim_cube.setup(fps)
+
+    def teardown(self):
+        self._sim_cube.teardown()
 
     def render(self, frame):
-        pass
+        self._sim_cube.render(frame)
 
     def tick(self):
-        pass
+        self._sim_cube.tick()
