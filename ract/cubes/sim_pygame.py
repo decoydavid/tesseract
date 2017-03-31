@@ -4,11 +4,14 @@
     pygame and OpenGL when using other cube controllers.
 """
 
+import itertools
+
 import faulthandler
 
 import pygame
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
+import numpy as np
 
 
 class SimCube(object):
@@ -70,7 +73,24 @@ class Tesseract(object):
 
     WHITE = [1.0, 1.0, 1.0, 1.0]
     GREY = [0.8, 0.8, 0.8, 1.0]
-    BLUE = [0, 0, 1.0, 1.0]
+    BLUE = [0, 0, 1.0, 0.5]
+
+    VOXEL_SHAPE = np.array([8, 8, 8])
+    VOXEL_WIDTHS = 0.2 / VOXEL_SHAPE
+
+    TOP_FACE = np.array([
+        [0, 0, 0],
+        [0, 0, 1],
+        [0, 1, 1],
+        [0, 1, 0],
+    ]) * VOXEL_WIDTHS
+
+    BOTTOM_FACE = np.array([
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 1],
+        [1, 1, 0],
+    ]) * VOXEL_WIDTHS
 
     def __init__(self, size):
         self.size = size
@@ -78,7 +98,11 @@ class Tesseract(object):
 
         self.verts = []
         self.colours = []
-        self.add_voxel(0, 0, 0, 1.0)
+
+        for pos in itertools.product(
+            *(np.linspace(0., 1., num=v, endpoint=False)
+              for v in self.VOXEL_SHAPE)):
+            self.add_voxel(np.array(pos), 1.0)
 
     def _do_rotate(self, cur, delta):
         cur += delta
@@ -96,20 +120,11 @@ class Tesseract(object):
     def rotate_z(self, delta):
         self.rz = self._do_rotate(self.rz, delta)
 
-    def add_voxel(self, x, y, z, intensity):
+    def add_voxel(self, pos, intensity):
         """ Add a single voxel. """
-        top_face = [
-            [0, 0, 0],
-            [0, 0, 1],
-            [0, 1, 1],
-            [0, 1, 0],
-        ]
-        bottom_face = [
-            [1, 0, 0],
-            [1, 0, 1],
-            [1, 1, 1],
-            [1, 1, 0],
-        ]
+        top_face = pos + self.TOP_FACE
+        bottom_face = pos + self.BOTTOM_FACE
+
         tf = [[i * self.size for i in v] for v in top_face]
         bf = [[i * self.size for i in v] for v in bottom_face]
 
