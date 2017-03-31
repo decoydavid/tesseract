@@ -104,6 +104,9 @@ class Tesseract(object):
               for v in self.VOXEL_SHAPE)):
             self.add_voxel(np.array(pos), 1.0)
 
+        self.verts = np.array(self.verts)
+        self.colours = np.array(self.colours)
+
     def _do_rotate(self, cur, delta):
         cur += delta
         cur %= 360
