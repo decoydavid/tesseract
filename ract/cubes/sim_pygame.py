@@ -13,6 +13,8 @@ import OpenGL.GL as gl
 import OpenGL.GLU as glu
 import numpy as np
 
+from ract.utils import MAX_INTENSITY
+
 
 class SimCube(object):
     """ Simulate the tesseract using pygame. """
@@ -39,7 +41,7 @@ class SimCube(object):
         pygame.quit()
 
     def render(self, frame):
-        pass
+        self._tesseract.update(frame)
 
     def tick(self):
         cube = self._tesseract
@@ -67,6 +69,7 @@ class SimCube(object):
         self._tesseract.display()
         pygame.display.flip()
         self._clock.tick(self._fps)
+        # print("FPS: %f" % self._clock.get_fps())
 
 
 class Tesseract(object):
@@ -150,6 +153,20 @@ class Tesseract(object):
 
         self.verts.extend([br, bl, tl])
         self.colours.extend([colour] * 3)
+
+    def update(self, frame):
+        voxel_off = np.array(self.VOXEL_OFF)
+        voxel_diff = np.array(self.VOXEL_ON) - np.array(self.VOXEL_OFF)
+
+        intensity = frame / float(MAX_INTENSITY)
+        colours = (
+            voxel_off[np.newaxis, np.newaxis, np.newaxis, :] +
+            intensity[:, :, :, np.newaxis] * voxel_diff
+        )
+        colours.shape = (512, 4)  # flatten before repeat
+        # 6 x 6 vertices per voxel
+        self.colours = np.repeat(colours, 36, axis=0)
+        self.colours.shape = (512 * 36, 4)
 
     def display(self):
         gl.glEnable(gl.GL_CULL_FACE)
