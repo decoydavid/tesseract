@@ -70,13 +70,14 @@ class SimCube(object):
 
 
 class Tesseract(object):
+    """ Render the tesseract using OpenGL. """
 
-    WHITE = [1.0, 1.0, 1.0, 1.0]
-    GREY = [0.8, 0.8, 0.8, 1.0]
-    BLUE = [0, 0, 1.0, 0.5]
+    BACKGROUND = [0.5, 0.5, 0.5, 1.0]
+    VOXEL_OFF = [0.9, 0.9, 0.9, 0.5]
+    VOXEL_ON = [0, 0, 1.0, 0.5]
 
     VOXEL_SHAPE = np.array([8, 8, 8])
-    VOXEL_WIDTHS = 0.2 / VOXEL_SHAPE
+    VOXEL_WIDTHS = 0.3 / VOXEL_SHAPE
 
     TOP_FACE = np.array([
         [0, 0, 0],
@@ -123,7 +124,7 @@ class Tesseract(object):
     def rotate_z(self, delta):
         self.rz = self._do_rotate(self.rz, delta)
 
-    def add_voxel(self, pos, intensity):
+    def add_voxel(self, pos, intensity, colour=VOXEL_OFF):
         """ Add a single voxel. """
         top_face = pos + self.TOP_FACE
         bottom_face = pos + self.BOTTOM_FACE
@@ -131,14 +132,14 @@ class Tesseract(object):
         tf = [[i * self.size for i in v] for v in top_face]
         bf = [[i * self.size for i in v] for v in bottom_face]
 
-        self.add_face([tf[2], tf[1], bf[1], bf[2]], self.BLUE)
-        self.add_face([tf[3], tf[2], bf[2], bf[3]], self.BLUE)
+        self.add_face([tf[2], tf[1], bf[1], bf[2]], colour)
+        self.add_face([tf[3], tf[2], bf[2], bf[3]], colour)
 
-        self.add_face(tf, self.BLUE)
-        self.add_face(list(reversed(bf)), self.BLUE)
+        self.add_face(tf, colour)
+        self.add_face(list(reversed(bf)), colour)
 
-        self.add_face([tf[1], tf[0], bf[0], bf[1]], self.BLUE)
-        self.add_face([tf[0], tf[3], bf[3], bf[0]], self.BLUE)
+        self.add_face([tf[1], tf[0], bf[0], bf[1]], colour)
+        self.add_face([tf[0], tf[3], bf[3], bf[0]], colour)
 
     def add_face(self, corners, colour):
         """ Add a square face. """
@@ -152,7 +153,7 @@ class Tesseract(object):
 
     def display(self):
         gl.glEnable(gl.GL_CULL_FACE)
-        gl.glClearColor(0.5, 0.5, 0.5, 1)
+        gl.glClearColor(*self.BACKGROUND)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glLoadIdentity()
 
@@ -179,6 +180,7 @@ class Tesseract(object):
 
 
 def gl_init(screen_size, display_mode):
+    """ Initialize display for OpenGL. """
     pygame.display.set_mode(screen_size, display_mode)
 
     gl.glEnable(gl.GL_DEPTH_TEST)
