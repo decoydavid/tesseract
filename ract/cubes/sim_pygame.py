@@ -76,8 +76,8 @@ class Tesseract(object):
     """ Render the tesseract using OpenGL. """
 
     BACKGROUND = [0.5, 0.5, 0.5, 1.0]
-    VOXEL_OFF = [0.9, 0.9, 0.9, 0.25]
-    VOXEL_ON = [0, 0, 1.0, 0.25]
+    VOXEL_OFF = [0.9, 0.9, 0.9, 0.6]
+    VOXEL_ON = [0, 0, 1.0, 0.6]
 
     VOXEL_SHAPE = np.array([8, 8, 8])
     VOXEL_WIDTHS = 0.2 / VOXEL_SHAPE
@@ -170,6 +170,8 @@ class Tesseract(object):
 
     def display(self):
         gl.glEnable(gl.GL_CULL_FACE)
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
         gl.glClearColor(*self.BACKGROUND)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glLoadIdentity()
