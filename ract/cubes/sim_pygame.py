@@ -52,17 +52,17 @@ class SimCube(object):
                 return
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
-                    cube.rotate_x(15)
+                    cube.rotate_x(5)
                 elif event.key == pygame.K_w:
-                    cube.rotate_x(-15)
+                    cube.rotate_x(-5)
                 elif event.key == pygame.K_a:
-                    cube.rotate_y(15)
+                    cube.rotate_y(5)
                 elif event.key == pygame.K_s:
-                    cube.rotate_y(-15)
+                    cube.rotate_y(-5)
                 elif event.key == pygame.K_z:
-                    cube.rotate_z(15)
+                    cube.rotate_z(5)
                 elif event.key == pygame.K_x:
-                    cube.rotate_z(-15)
+                    cube.rotate_z(-5)
             elif event.type == pygame.VIDEORESIZE:
                 screen_size = event.size
                 gl_init(screen_size, self._display_mode)
@@ -76,11 +76,11 @@ class Tesseract(object):
     """ Render the tesseract using OpenGL. """
 
     BACKGROUND = [0.5, 0.5, 0.5, 1.0]
-    VOXEL_OFF = [0.9, 0.9, 0.9, 0.5]
-    VOXEL_ON = [0, 0, 1.0, 0.5]
+    VOXEL_OFF = [0.9, 0.9, 0.9, 0.25]
+    VOXEL_ON = [0, 0, 1.0, 0.25]
 
     VOXEL_SHAPE = np.array([8, 8, 8])
-    VOXEL_WIDTHS = 0.3 / VOXEL_SHAPE
+    VOXEL_WIDTHS = 0.2 / VOXEL_SHAPE
 
     TOP_FACE = np.array([
         [0, 0, 0],
