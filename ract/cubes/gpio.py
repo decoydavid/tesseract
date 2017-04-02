@@ -9,13 +9,15 @@ class GPIOController(CubeController):
     NAME = 'gpio'
 
     def setup(self, fps):
-        pass
+        from ._gpio_impl import GpioCube
+        self._gpio_cube = GpioCube()
+        self._gpio_cube.setup(fps)
 
     def teardown(self):
-        pass
+        self._gpio_cube.teardown()
 
     def render(self, frame):
-        pass
+        self._gpio_cube.render(frame)
 
     def tick(self):
-        pass
+        self._gpio_cube.tick()
