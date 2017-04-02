@@ -29,6 +29,7 @@ setup(
     entry_points='''
         [console_scripts]
         ract=ract.cli:ract
+        ract-debug=ract.debugcli:ractdebug
     ''',
     classifiers=[
         'Development Status :: 4 - Beta',
