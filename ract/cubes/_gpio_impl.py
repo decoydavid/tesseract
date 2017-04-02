@@ -21,9 +21,8 @@ class GpioCube(object):
         """ Initialization
         """
         self._fps = None
-        self._flattened_frame = None
+        self._flattened_frame_layers = None
         self._tesseract = None
-        self._gpio_setup = False
 
     def setup(self, fps):
         """ Set up the cube hardware abstraction layer, which means:
@@ -36,16 +35,15 @@ class GpioCube(object):
         faulthandler.enable()
         self._tesseract = GpioTesseract()
         self._tesseract.setup()
-        self._gpio_setup = True
         self._tesseract.clock_in_dot_correction(self._tesseract.default_dot_correction())
         self._fps = fps
-        self._flattened_frame = None
+        self._flattened_frame_layers = None
 
     def teardown(self):
         """ Tear down the GPIO interface if it has been setup
         :return:
         """
-        if self._gpio_setup:
+        if self._tesseract:
             self._tesseract.teardown()
 
     def render(self, frame):
@@ -53,26 +51,28 @@ class GpioCube(object):
         :param frame:
         :return:
         """
-        self._flattened_frame = frame.reshape(512)
+        self._flattened_frame_layers = []
+        for layer in frame:
+            self._flattened_frame_layers.append(layer.reshape(64))
 
     def tick(self):
         """ Call the gpio HAL to send one frame's worth of data to the raspberry pi
         :return:
         """
-        self._tesseract.clock_in_grey_scale_data(self._flattened_frame)
+        for layer in self._flattened_frame_layers:
+            self._tesseract.clock_in_grey_scale_data(layer)
 
 
 class GpioTesseract(object):
     """ Control the tesseract using GPIO. """
 
     def __init__(self):
-        # utilites for echoing and waiting for user input.
         self._echo = click.echo
         self._pause = click.pause
-
-    def setup(self):
         self._first_gs_cycle = True
 
+    @staticmethod
+    def setup():
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(GSCLK, GPIO.OUT)
         GPIO.setup(DCPRG, GPIO.OUT)
@@ -88,7 +88,8 @@ class GpioTesseract(object):
         set_pin(XLAT, False)
         set_pin(BLANK, True)
 
-    def teardown(self):
+    @staticmethod
+    def teardown():
         GPIO.cleanup()
 
     def test_pins(self):
@@ -106,7 +107,8 @@ class GpioTesseract(object):
             self._echo('  pin low')
             self._pause()
 
-    def default_dot_correction(self):
+    @staticmethod
+    def default_dot_correction():
         # set all 16 LED lines on all 5 chips to maximum brightness
         return [63] * 16 * 5
 
@@ -122,7 +124,8 @@ class GpioTesseract(object):
         self.latch_data()
         set_pin(VPRG, False)
 
-    def send_dc_byte(self, value_to_send, no_bits=6):
+    @staticmethod
+    def send_dc_byte(value_to_send, no_bits=6):
         """ Clock in one dot correction byte. """
         for i in range(no_bits):
             bit = (value_to_send >> i) & 0x01
@@ -146,7 +149,8 @@ class GpioTesseract(object):
             self._first_gs_cycle = False
             self._echo('First grey-scale clock in complete')
 
-    def send_gs_byte(self, value_to_send, no_bits=12):
+    @staticmethod
+    def send_gs_byte(value_to_send, no_bits=12):
         """ Clock in one grey-scale byte. """
         for i in range(no_bits):
             bit = (value_to_send >> i) & 0x01
@@ -154,12 +158,14 @@ class GpioTesseract(object):
             set_pin(SCLK, True)
             set_pin(SCLK, False)
 
-    def latch_data(self):
+    @staticmethod
+    def latch_data():
         """ Signal that data has been latched in. """
         set_pin(XLAT, True)
         set_pin(XLAT, False)
 
-    def toggle_gsclk(self, times=4096):
+    @staticmethod
+    def toggle_gsclk(times=4096):
         """ Clear the GSCLK line and then toggle it the specified number of
             times.
 
