@@ -156,7 +156,7 @@ class Tesseract(object):
 
     def update(self, frame):
         voxel_off = np.array(self.VOXEL_OFF)
-        voxel_diff = np.array(self.VOXEL_ON) - np.array(self.VOXEL_OFF)
+        voxel_diff = np.array(self.VOXEL_ON) - voxel_off
 
         intensity = frame / float(MAX_INTENSITY)
         colours = (
