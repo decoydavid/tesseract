@@ -29,13 +29,14 @@ class CubeController(object):
             :param numpy.array frame:
                 The frame to render. An 8 x 8 x 8 numpy array.
         """
-        pass
+        raise NotImplementedError()
 
     def tick(self):
         """ This method arranges for the GSCLK line to be toggled
-            so that the frame continues to display.
+            so that the frame continues to display (or whatever else the
+            cube implementation needs to do to keep things running).
         """
-        pass
+        raise NotImplementedError()
 
 
 class ArtworkRenderer(object):
@@ -54,3 +55,4 @@ class ArtworkRenderer(object):
             :return numpy.array:
                 The frame to render. An 8 x 8 x 8 numpy array.
         """
+        raise NotImplementedError()
