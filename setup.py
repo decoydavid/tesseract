@@ -25,6 +25,7 @@ setup(
         'cffi>=1.3.0',
         'click',
         'numpy',
+        'faulthandler',
     ],
     entry_points='''
         [console_scripts]
