@@ -13,25 +13,53 @@ from ract.utils import (
 
 
 class GpioCube(object):
-    """ Control the tesseract by directly toggling pins using GPIO. """
+    """ Raspberry Pi 1 hardware abstraction layer (HAL) for controlling the tesseract by directly toggling pins using
+    GPIO.
+    """
 
     def __init__(self):
-        pass
+        """ Initialization
+        """
+        self._fps = None
+        self._flattened_frame = None
+        self._tesseract = None
+        self._gpio_setup = False
 
     def setup(self, fps):
+        """ Set up the cube hardware abstraction layer, which means:
+         - instantiate a tesseract interface
+         - set up the GPIO interface
+         - clock in the LED dot-correction data
+        :param fps:
+        :return:
+        """
         faulthandler.enable()
         self._tesseract = GpioTesseract()
         self._tesseract.setup()
+        self._gpio_setup = True
+        self._tesseract.clock_in_dot_correction(self._tesseract.default_dot_correction())
         self._fps = fps
+        self._flattened_frame = None
 
     def teardown(self):
-        self._tesseract.teardown()
+        """ Tear down the GPIO interface if it has been setup
+        :return:
+        """
+        if self._gpio_setup:
+            self._tesseract.teardown()
 
     def render(self, frame):
-        pass
+        """ Render data into a suitable format for the GPIO input
+        :param frame:
+        :return:
+        """
+        self._flattened_frame = [value for plane in frame for row in plane for value in row]
 
     def tick(self):
-        pass
+        """ Call the gpio HAL to send one frame's worth of data to the raspberry pi
+        :return:
+        """
+        self._tesseract.clock_in_grey_scale_data(self._flattened_frame)
 
 
 class GpioTesseract(object):
