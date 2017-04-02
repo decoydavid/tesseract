@@ -22,5 +22,7 @@ Links
 * TLC5940 data sheet - http://www.ti.com/lit/ds/symlink/tlc5940.pdf
 * The rpio-pwm DMA implementation -
   https://github.com/metachris/raspberrypi-pwm/blob/master/rpio-pwm/rpio_pwm.c
+* The RPIO PWM DMA implementation -
+  https://github.com/metachris/RPIO/blob/master/source/c_pwm/pwm.c
 * Raspberry Pi FM transmitter using DMA -
   https://github.com/richardghirst/PiBits/blob/master/PiFmDma/PiFmDma.c
