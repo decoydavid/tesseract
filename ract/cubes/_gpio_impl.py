@@ -131,16 +131,25 @@ class GpioTesseract(object):
         set_pin(XLAT, True)
         set_pin(XLAT, False)
 
-    def toggle_gsclk(self, times):
-        """ Toggle the GSCLK line a specified number of times.
+    def toggle_gsclk(self, times=4096):
+        """ Clear the GSCLK line and then toggle it the specified number of
+            times.
+
+            :param int times:
+                How many times to toggle the GSCLK. Each time the clock is
+                toggled it increments by one. If the intensity value of
+                an LED is greater than the current count, it is turned on.
+                Otherwise it is turned off. The default value is 4096. Other
+                counts won't cover the full grey-scale intensity range.
 
             The GSCLK controls the PWM cycles of the LEDs and so must
             be continually clocked for the LEDs to be PWMed.
         """
+        # clear GSCLK
+        set_pin(BLANK, True)
+        set_pin(BLANK, False)
+        # increment the grey-scale count
         for i in xrange(times):
-            if i % 4096 == 0:
-                set_pin(BLANK, True)
-                set_pin(BLANK, False)
             set_pin(GSCLK, True)
             set_pin(GSCLK, False)
 

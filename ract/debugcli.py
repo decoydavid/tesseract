@@ -66,14 +66,14 @@ def ractdebug():
         ract.clock_in_dot_correction()
         for layer in layer_mask:
             ract.clock_in_grey_scale_data(gsData1 * 4 + layer)
-            ract.toggle_gsclk(1000)
+            ract.toggle_gsclk()
         for i in SHEET_CORRECTION_MAPPING:
             for j in range(8):
                 for layer in layer_mask:
                     data = [0] * 16 * 4
                     data[i * 8 + j] = 4095
                     ract.clock_in_grey_scale_data(data + layer)
-                    ract.toggle_gsclk(1000)
+                    ract.toggle_gsclk()
 
     except Exception as e:
         print('Exception caught %s' % e)
