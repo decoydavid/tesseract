@@ -53,7 +53,7 @@ class GpioCube(object):
         :param frame:
         :return:
         """
-        self._flattened_frame = [value for plane in frame for row in plane for value in row]
+        self._flattened_frame = frame.reshape(512)
 
     def tick(self):
         """ Call the gpio HAL to send one frame's worth of data to the raspberry pi
