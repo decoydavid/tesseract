@@ -20,10 +20,12 @@ class GpioCube(object):
 
     def setup(self, fps):
         faulthandler.enable()
+        self._tesseract = GpioTesseract()
+        self._tesseract.setup()
         self._fps = fps
 
     def teardown(self):
-        pass
+        self._tesseract.teardown()
 
     def render(self, frame):
         pass
