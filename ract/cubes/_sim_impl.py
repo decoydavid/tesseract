@@ -75,7 +75,9 @@ class SimCube(object):
 class Tesseract(object):
     """ Render the tesseract using OpenGL. """
 
+    # colours
     BACKGROUND = [0.5, 0.5, 0.5, 1.0]
+    FLOOR = [1., 0.7, 0.9, 0.3]
     VOXEL_OFF = [0.9, 0.9, 0.9, 0.6]
     VOXEL_ON = [0, 0, 1.0, 0.6]
 
@@ -98,7 +100,9 @@ class Tesseract(object):
 
     def __init__(self, size):
         self.size = size
-        self.rx = self.ry = self.rz = 0
+        # rotate one degree at the start so voxels dont overlap so
+        # completely
+        self.rx = self.ry = self.rz = 1
 
         self.verts = []
         self.colours = []
@@ -168,6 +172,22 @@ class Tesseract(object):
         self.colours = np.repeat(colours, 36, axis=0)
         self.colours.shape = (512 * 36, 4)
 
+    def _render_floor(self):
+        right, left = -0.1, 1.0
+        floor_corners = [
+            [left, left], [left, right], [right, right],
+            [right, right], [right, left], [left, left],
+        ]
+        floor_corners.extend(reversed(floor_corners))
+        z = - 0.05 * self.size
+        gl.glBegin(gl.GL_TRIANGLES)
+        for x, y in floor_corners:
+            x = x * self.size
+            y = y * self.size
+            gl.glVertex3f(x, y, z)
+            gl.glColor4f(1., 0.8, 0.8, 0.3)
+        gl.glEnd()
+
     def display(self):
         gl.glEnable(gl.GL_CULL_FACE)
         gl.glEnable(gl.GL_BLEND)
@@ -176,7 +196,10 @@ class Tesseract(object):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glLoadIdentity()
 
-        glu.gluLookAt(-self.size, -self.size, -self.size, 0, 0, 0, 0, 0, 1)
+        glu.gluLookAt(
+            -0.75 * self.size, -0.75 * self.size, 1.75 * self.size,
+            0.5 * self.size, 0.5 * self.size, 0.5 * self.size,
+            0, 0, 1)
 
         # We want to rotate about the centre of the cube, so
         # shift, rotate, shift back
@@ -193,6 +216,8 @@ class Tesseract(object):
         gl.glColorPointerf(self.colours)
 
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, len(self.verts))
+
+        self._render_floor()
 
         gl.glDisableClientState(gl.GL_COLOR_ARRAY)
         gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
