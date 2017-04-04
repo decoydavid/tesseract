@@ -4,6 +4,8 @@ include README.rst
 include setup.py
 
 recursive-include cffi_builders *
+recursive-include helpers *
+recursive-include ract *.py
 
 # Prune stray bytecode files.
 global-exclude *.pyc
