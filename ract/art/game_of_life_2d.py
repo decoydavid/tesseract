@@ -1,5 +1,7 @@
 """ 2-D Game of Life with history. """
 
+import numpy as np
+
 from ract.interfaces import ArtworkRenderer
 from ract.utils import (
     constant_frame, MAX_INTENSITY, TimeStepper)
@@ -18,12 +20,35 @@ class GameOfLife2D(ArtworkRenderer):
     def setup(self, fps):
         self._stepper = TimeStepper(self.SECONDS_PER_STEP)
         self._frame = constant_frame()
+        self._frame[0] = self._initial_population() * MAX_INTENSITY
+        self._neighbours = np.array([
+            [i, j] for i in (-1, 0, 1) for j in (-1, 0, 1)
+            if i != 0 or j != 0
+        ])
+
+    def _initial_population(self):
+        return np.array([
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ])
+
+    def _update_life(self, layer):
+        layer = layer / MAX_INTENSITY  # hackity hack
+        counts = sum(
+            np.roll(layer, (i, j), (0, 1))
+            for i, j in self._neighbours)
+        return (counts == 3) | (layer & (counts == 2))
 
     def _update_frame(self):
         new_frame = constant_frame()
         new_frame[1:8] = self._frame[0:7]
-        cnt = self._stepper.count() % 8
-        new_frame[0][0][cnt] = MAX_INTENSITY
+        new_frame[0] = self._update_life(self._frame[0]) * MAX_INTENSITY
         self._frame = new_frame
 
     def next_frame(self):
