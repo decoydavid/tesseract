@@ -6,10 +6,11 @@
 
 import click
 import faulthandler
+import numpy as np
 import RPi.GPIO as GPIO
 
 from ract.utils import (
-    GSCLK, DCPRG, SCLK, XLAT, BLANK, SIN, VPRG)
+    GSCLK, DCPRG, SCLK, XLAT, BLANK, SIN, VPRG, LAYER_MASKS)
 
 
 class GpioCube(object):
@@ -52,8 +53,8 @@ class GpioCube(object):
         :return:
         """
         self._flattened_frame_layers = []
-        for layer in frame:
-            self._flattened_frame_layers.append(layer.reshape(64))
+        for layer, mask in zip(frame, LAYER_MASKS):
+            self._flattened_frame_layers.append(np.concatenate((layer.reshape(64), mask), axis=1))
 
     def tick(self):
         """ Call the gpio HAL to send one frame's worth of data to the raspberry pi
