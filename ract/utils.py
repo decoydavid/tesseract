@@ -42,11 +42,17 @@ class TimeStepper(object):
         self._seconds_per_step = seconds_per_step
         # ensure we take the first step straight away
         self._last_step = time.time() - (2 * seconds_per_step)
+        self._count = 0
+
+    def count(self):
+        """ Returns how many steps have been taken. """
+        return self._count
 
     def step(self):
         """ Returns True if enough time has passed for the next step. """
         now = time.time()
         if now - self._last_step >= self._seconds_per_step:
             self._last_step = now
+            self._count += 1
             return True
         return False
