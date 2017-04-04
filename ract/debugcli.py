@@ -3,7 +3,7 @@
 import click
 
 from ract.cubes._gpio_impl import GpioTesseract
-from ract.utils import SHEET_CORRECTION_MAPPING
+from ract.utils import SHEET_CORRECTION_MAPPING, LAYER_MASKS
 
 gsData1 = [
     4095,  # Channel 15
@@ -44,17 +44,6 @@ gsData0 = [
     0,  # Channel 0
 ]
 
-layer_mask = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4095],
-]
-
 
 @click.command()
 def ractdebug():
@@ -64,12 +53,12 @@ def ractdebug():
     try:
         ract.test_pins()
         ract.clock_in_dot_correction()
-        for layer in layer_mask:
+        for layer in LAYER_MASKS:
             ract.clock_in_grey_scale_data(gsData1 * 4 + layer)
             ract.toggle_gsclk()
         for i in SHEET_CORRECTION_MAPPING:
             for j in range(8):
-                for layer in layer_mask:
+                for layer in LAYER_MASKS:
                     data = [0] * 16 * 4
                     data[i * 8 + j] = 4095
                     ract.clock_in_grey_scale_data(data + layer)
