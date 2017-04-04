@@ -22,7 +22,7 @@ SHEET_CORRECTION_MAPPING = [
     6, 7, 0, 1, 3, 2, 5, 4
 ]
 
-LAYER_MASKS = np.concatenate((np.zeros((8, 8)), np.identity(8) * MAX_INTENSITY), axis=1)
+LAYER_MASKS = np.concatenate((np.zeros((8, 8)), np.identity(8) * MAX_INTENSITY), axis=1).astype(np.uint16)
 
 
 def constant_frame(intensity=MIN_INTENSITY):

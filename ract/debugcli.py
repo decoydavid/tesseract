@@ -54,14 +54,14 @@ def ractdebug():
         ract.test_pins()
         ract.clock_in_dot_correction()
         for layer in LAYER_MASKS:
-            ract.clock_in_grey_scale_data(gsData1 * 4 + layer)
+            ract.clock_in_grey_scale_data(gsData1 * 4 + list(layer))
             ract.toggle_gsclk()
         for i in SHEET_CORRECTION_MAPPING:
             for j in range(8):
                 for layer in LAYER_MASKS:
                     data = [0] * 16 * 4
                     data[i * 8 + j] = 4095
-                    ract.clock_in_grey_scale_data(data + layer)
+                    ract.clock_in_grey_scale_data(data + list(layer))
                     ract.toggle_gsclk()
 
     except Exception as e:

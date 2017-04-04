@@ -52,9 +52,8 @@ class GpioCube(object):
         :param frame:
         :return:
         """
-        self._flattened_frame_layers = []
-        for layer, mask in zip(frame, LAYER_MASKS):
-            self._flattened_frame_layers.append(np.concatenate((layer.reshape(64), mask), axis=1))
+        self._flattened_frame_layers = [np.concatenate((layer.reshape(64), mask))
+                                        for layer, mask in zip(frame, LAYER_MASKS)]
 
     def tick(self):
         """ Call the gpio HAL to send one frame's worth of data to the raspberry pi
@@ -62,6 +61,7 @@ class GpioCube(object):
         """
         for layer in self._flattened_frame_layers:
             self._tesseract.clock_in_grey_scale_data(layer)
+            self._tesseract.toggle_gsclk()
 
 
 class GpioTesseract(object):
