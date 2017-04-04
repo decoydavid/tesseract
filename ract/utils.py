@@ -1,5 +1,7 @@
 """ Tesseract utility functions. """
 
+import time
+
 import numpy as np
 
 # Driver chip intensity range (2**12 steps)
@@ -28,3 +30,29 @@ def constant_frame(intensity=MIN_INTENSITY):
         An 8 x 8 x 8 tesseract frame.
     """
     return np.full((8, 8, 8), intensity, np.uint16)
+
+
+class TimeStepper(object):
+    """ An object that tracks time steps.
+
+        :param float seconds_per_step:
+            Seconds between steps. E.g. 0.1, 0.5, 2.5.
+    """
+    def __init__(self, seconds_per_step):
+        self._seconds_per_step = seconds_per_step
+        # ensure we take the first step straight away
+        self._last_step = time.time() - (2 * seconds_per_step)
+        self._count = 0
+
+    def count(self):
+        """ Returns how many steps have been taken. """
+        return self._count
+
+    def step(self):
+        """ Returns True if enough time has passed for the next step. """
+        now = time.time()
+        if now - self._last_step >= self._seconds_per_step:
+            self._last_step = now
+            self._count += 1
+            return True
+        return False
