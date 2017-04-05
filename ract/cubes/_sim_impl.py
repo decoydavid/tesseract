@@ -189,7 +189,6 @@ class Tesseract(object):
         gl.glEnd()
 
     def display(self):
-        gl.glEnable(gl.GL_CULL_FACE)
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
         gl.glClearColor(*self.BACKGROUND)
