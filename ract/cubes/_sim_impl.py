@@ -107,10 +107,10 @@ class Tesseract(object):
         self.verts = []
         self.colours = []
 
-        for pos in itertools.product(
+        for x, y, z in itertools.product(
             *(np.linspace(0., 1., num=v, endpoint=False)
               for v in self.VOXEL_SHAPE)):
-            self.add_voxel(np.array(pos), 1.0)
+            self.add_voxel(np.array([y, z, x]))
 
         self.verts = np.array(self.verts)
         self.colours = np.array(self.colours)
@@ -131,7 +131,7 @@ class Tesseract(object):
     def rotate_z(self, delta):
         self.rz = self._do_rotate(self.rz, delta)
 
-    def add_voxel(self, pos, intensity, colour=VOXEL_OFF):
+    def add_voxel(self, pos, colour=VOXEL_OFF):
         """ Add a single voxel. """
         top_face = pos + self.TOP_FACE
         bottom_face = pos + self.BOTTOM_FACE
