@@ -9,9 +9,11 @@ from helpers import get_inc_dir, get_lib_dir, get_c_lib
 ffi = cffi.FFI()
 
 ffi.cdef("""
+void setup_pin(void);
+void set_pin(int value);
 """)
 
-sdl = ffi.set_source(
+lib = ffi.set_source(
     "ract._ract_dma_c",
     libraries=[],
     include_dirs=get_inc_dir(),
