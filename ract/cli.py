@@ -33,9 +33,14 @@ def ract(cube, art, fps, seconds):
     cube.setup(fps)
 
     start = time.time()
+    # timer = time.time()
     while time.time() - start < seconds:
         frame = art.next_frame()
         cube.render(frame)
+        # click.echo("Time to render art: %f" % (time.time() - timer))
+        # timer = time.time()
         cube.tick()
+        # click.echo("Time to display art: %f" % (time.time() - timer))
+        # timer = time.time()
 
     cube.teardown()
