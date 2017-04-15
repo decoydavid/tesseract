@@ -18,7 +18,7 @@ void bcm2835_gpio_write(uint8_t pin, uint8_t on);
 
 lib = ffi.set_source(
     "ract._ract_dma_c",
-    libraries=[],
+    libraries=['bcm2835'],
     include_dirs=get_inc_dir(),
     library_dirs=get_lib_dir(),
     source="""
