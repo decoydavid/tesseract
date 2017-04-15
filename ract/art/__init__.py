@@ -2,10 +2,12 @@
 
 from .one_voxel_scan import OneVoxelScan
 from .game_of_life_2d import GameOfLife2D
+from .game_of_life_3d import GameOfLife3D
 from .worm_simulator import WormSimulator
 
 ART = [
     OneVoxelScan,
     GameOfLife2D,
+    GameOfLife3D,
     WormSimulator,
 ]
