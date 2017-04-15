@@ -5,12 +5,12 @@ import os
 
 def get_lib_dir():
     """ Return the library path. """
-    return ['/usr/lib', '/usr/local/lib']
+    return ['/usr/lib', '/usr/local/lib', 'tesseract/cffi_builders/lib']
 
 
 def get_inc_dir():
     """ Return the include directories libraries. """
-    return ['/usr/include', '/usr/local/include']
+    return ['/usr/include', '/usr/local/include', 'tesseract/cffi_builders/lib']
 
 
 def get_c_lib(name):

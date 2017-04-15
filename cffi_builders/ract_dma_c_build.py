@@ -11,11 +11,14 @@ ffi = cffi.FFI()
 ffi.cdef("""
 void setup_pin(void);
 void set_pin(int value);
+#define HIGH ...
+#define LOW ...
+void bcm2835_gpio_write(uint8_t pin, uint8_t on);
 """)
 
 lib = ffi.set_source(
     "ract._ract_dma_c",
-    libraries=['bcm2835'],
+    libraries=[],
     include_dirs=get_inc_dir(),
     library_dirs=get_lib_dir(),
     source="""
