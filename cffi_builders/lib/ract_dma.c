@@ -21,7 +21,7 @@
 #define FALSE           0x0
 
 // Local global variables
-uint8_t u8_first_gs_cycle = FALSE;
+uint8_t     u8_first_gs_cycle;
 
 // Initialize the BCM
 int initialize_RPI_GPIO(void) {
@@ -58,6 +58,8 @@ void setup_interface_pins(void) {
 // Compensate for board protection logic flip
 void set_pin(uint8_t u8_pin, uint8_t u8_level) {
     bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH);
+    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH);
+    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH);
 }
 
 void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
@@ -67,8 +69,8 @@ void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
     for (i = 0; i < u16_data_len; i++) {
         send_dot_correction(u8_data[i]);
     }
-    latch_data();
-    set_pin(VPRG, LOW);
+    set_pin(XLAT, HIGH);
+    set_pin(XLAT, LOW);
     printf("DC setup complete\n");
 }
 
@@ -81,41 +83,6 @@ void send_dot_correction(uint8_t u8_dot_correction) {
         set_pin(SCLK, HIGH);
         set_pin(SCLK, LOW);
     }
-}
-
-void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
-    int i;
-    set_pin(BLANK, HIGH);
-    for (i = 0; i < u16_data_len; i++) {
-        send_greyscale(u16_data[i]);
-    }
-    latch_data();
-    set_pin(BLANK, LOW);
-
-    if (u8_first_gs_cycle == TRUE) {
-        // toggle SCLK one exta time on the first grey-scale clock in
-        set_pin(SCLK, HIGH);
-        set_pin(SCLK, LOW);
-        u8_first_gs_cycle = FALSE;
-        printf("GC first transfer complete\n");
-    }
-}
-
-void send_greyscale(uint16_t u16_greyscale) {
-    int i;
-    uint8_t u8_bit;
-    for (i = 0; i < GS_LENGTH; i++) {
-        u8_bit = (u16_greyscale >> i) & 0x01;
-        set_pin(SIN, u8_bit);
-        set_pin(SCLK, HIGH);
-        set_pin(SCLK, LOW);
-    }
-}
-
-// Signal that data has been latched in
-void latch_data(void) {
-    set_pin(XLAT, HIGH);
-    set_pin(XLAT, LOW);
 }
 
 /*
@@ -132,12 +99,48 @@ void latch_data(void) {
  *  The GSCLK controls the PWM cycles of the LEDs and so must
  *  be continually clocked for the LEDs to be PWMed.
  */
-void toggle_gsclk(void) {
-    int i;
-    set_pin(BLANK, HIGH);
+void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
+    uint16_t u16_gs_clk_counter;
+    uint16_t u16_gs_data_counter;
+
+    if (u8_first_gs_cycle == TRUE) {
+        set_pin(VPRG, LOW);
+    }
+    u16_gs_clk_counter = 0;
+    u16_gs_data_counter = 0;
     set_pin(BLANK, LOW);
-    for (i = 0; i < GS_CLOCK_CYCLES; i++) {
-        set_pin(GSCLK, HIGH);
-        set_pin(GSCLK, LOW);
+    for (;;) {
+        if (u16_gs_clk_counter >= GS_CLOCK_CYCLES) {
+            set_pin(BLANK, HIGH);
+            set_pin(XLAT, HIGH);
+            set_pin(XLAT, LOW);
+            if (u8_first_gs_cycle == TRUE) {
+                u8_first_gs_cycle = FALSE;
+                set_pin(SCLK, HIGH);
+                set_pin(SCLK, LOW);
+                printf("GC first transfer complete\n");
+            }
+            break;
+        } else {
+            if (u16_gs_data_counter < u16_data_len) {
+                uint8_t u8_bit;
+                uint16_t u16_i;
+                for (u16_i = 0; u16_i < GS_LENGTH; u16_i++) {
+                    u8_bit = (u16_data[u16_gs_data_counter] >> u16_i) & 0x01;
+                    set_pin(SIN, u8_bit);
+                    set_pin(SCLK, HIGH);
+                    set_pin(SCLK, LOW);
+                    set_pin(GSCLK, HIGH);
+                    set_pin(GSCLK, LOW);
+                    u16_gs_clk_counter++;
+                }
+                u16_gs_data_counter++;
+            } else {
+                set_pin(GSCLK, HIGH);
+                set_pin(GSCLK, LOW);
+                u16_gs_clk_counter++;
+            }
+        }
     }
 }
+

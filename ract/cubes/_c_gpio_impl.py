@@ -68,4 +68,3 @@ class CffiGpioCube(object):
         for layer in self._flattened_frame_layers:
             c_pointer = ffi.cast("uint16_t *", ffi.from_buffer(layer))
             ract_dma.clock_in_grey_scale_data(c_pointer, len(layer))
-            ract_dma.toggle_gsclk()
