@@ -17,7 +17,7 @@ OUTPUTS_PER_CHIP = 16
 DC_FULL_INTENSITY = 63
 
 
-class GpioCube(object):
+class CffiGpioCube(object):
     """ Raspberry Pi 1 hardware abstraction layer (HAL) for controlling the tesseract by directly toggling pins using
     GPIO.
     """

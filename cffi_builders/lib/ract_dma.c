@@ -4,9 +4,9 @@
 //#include "ract_dma.h"
 
 // RPI references
-#define GSCLK           RPI_GPIO_P1_3
-#define DCPRG           RPI_GPIO_P1_5
-#define SCLK            RPI_GPIO_P1_8
+#define GSCLK           RPI_GPIO_P1_03
+#define DCPRG           RPI_GPIO_P1_05
+#define SCLK            RPI_GPIO_P1_08
 #define XLAT            RPI_GPIO_P1_10
 #define BLANK           RPI_GPIO_P1_11
 #define SIN             RPI_GPIO_P1_12
@@ -17,9 +17,11 @@
 #define GS_LENGTH       12
 #define GS_CLOCK_CYCLES 4096
 // Internal references
+#define TRUE            0x1
+#define FALSE           0x0
 
 // Local global variables
-uint8_t u8_first_gs_cycle = False;
+uint8_t u8_first_gs_cycle = FALSE;
 
 // Initialize the BCM
 int initialize_RPI_GPIO(void) {
@@ -49,13 +51,13 @@ void setup_interface_pins(void) {
     set_pin(SCLK, LOW);
     set_pin(XLAT, LOW);
     set_pin(BLANK, HIGH);
-    u8_first_gs_cycle = True;
-    printf("Interface configured\n")
+    u8_first_gs_cycle = TRUE;
+    printf("Interface configured\n");
 }
 
 // Compensate for board protection logic flip
 void set_pin(uint8_t u8_pin, uint8_t u8_level) {
-    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH;
+    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH);
 }
 
 void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
@@ -67,14 +69,15 @@ void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
     }
     latch_data();
     set_pin(VPRG, LOW);
-    printf("DC setup complete\n")
+    printf("DC setup complete\n");
 }
 
 void send_dot_correction(uint8_t u8_dot_correction) {
     int i;
+    uint8_t u8_bit;
     for (i = 0; i < DC_LENGTH; i++) {
-        bit = (u8_dot_correction >> i) & 0x01;
-        set_pin(SIN, bit);
+        u8_bit = (u8_dot_correction >> i) & 0x01;
+        set_pin(SIN, u8_bit);
         set_pin(SCLK, HIGH);
         set_pin(SCLK, LOW);
     }
@@ -89,20 +92,21 @@ void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
     latch_data();
     set_pin(BLANK, LOW);
 
-    if (u8_first_gs_cycle == True) {
+    if (u8_first_gs_cycle == TRUE) {
         // toggle SCLK one exta time on the first grey-scale clock in
         set_pin(SCLK, HIGH);
         set_pin(SCLK, LOW);
-        u8_first_gs_cycle = False;
-        printf("GC first transfer complete\n")
+        u8_first_gs_cycle = FALSE;
+        printf("GC first transfer complete\n");
     }
 }
 
 void send_greyscale(uint16_t u16_greyscale) {
     int i;
+    uint8_t u8_bit;
     for (i = 0; i < GS_LENGTH; i++) {
-        bit = (u16_greyscale >> i) & 0x01;
-        set_pin(SIN, bit);
+        u8_bit = (u16_greyscale >> i) & 0x01;
+        set_pin(SIN, u8_bit);
         set_pin(SCLK, HIGH);
         set_pin(SCLK, LOW);
     }
