@@ -3,9 +3,7 @@
 #include <unistd.h>
 //#include "ract_dma.h"
 
-void set_pin(int value);
-
-
+// RPI references
 #define GSCLK           RPI_GPIO_P1_3
 #define DCPRG           RPI_GPIO_P1_5
 #define SCLK            RPI_GPIO_P1_8
@@ -14,18 +12,26 @@ void set_pin(int value);
 #define SIN             RPI_GPIO_P1_12
 #define VPRG            RPI_GPIO_P1_13
 #define OUT             BCM2835_GPIO_FSEL_OUTP
-
+// TLC5940 references
 #define DC_LENGTH       6
+#define GS_LENGTH       12
+#define GS_CLOCK_CYCLES 4096
+// Internal references
 
-//#define PIN   RPI_GPIO_P1_15
+// Local global variables
+uint8_t u8_first_gs_cycle = False;
 
 // Initialize the BCM
 int initialize_RPI_GPIO(void) {
-    return bcm2835_init();
+    int i_ret_val = bcm2835_init();
+    printf("RPI GPIO interface initialized\n");
+    return i_ret_val;
 }
 
 int close_RPI_GPIO(void) {
-    return bcm2835_close();
+    int i_ret_val = bcm2835_close();
+    printf("RPI GPIO interface closed\n");
+    return i_ret_val;
 }
 
 // Set initial pin directions and initial values
@@ -37,139 +43,97 @@ void setup_interface_pins(void) {
     bcm2835_gpio_fsel(XLAT, OUT);
     bcm2835_gpio_fsel(BLANK, OUT);
     bcm2835_gpio_fsel(SIN, OUT);
-    set_pin_low(GSCLK, False);
-    set_pin_low(DCPRG, False);
-    set_pin_high(VPRG, True);
-    set_pin_low(SCLK, False);
-    set_pin_low(XLAT, False);
-    set_pin_high(BLANK, True);
-}
-
-// Compensate for board protection logic flip
-void set_pin_low(uint8_t u8_pin) {
-    bcm2835_gpio_write(u8_pin, HIGH);
-}
-
-// Compensate for board protection logic flip
-void set_pin_high(uint8_t u8_pin) {
-    bcm2835_gpio_write(u8_pin, LOW);
+    set_pin(GSCLK, LOW);
+    set_pin(DCPRG, LOW);
+    set_pin(VPRG, HIGH);
+    set_pin(SCLK, LOW);
+    set_pin(XLAT, LOW);
+    set_pin(BLANK, HIGH);
+    u8_first_gs_cycle = True;
+    printf("Interface configured\n")
 }
 
 // Compensate for board protection logic flip
 void set_pin(uint8_t u8_pin, uint8_t u8_level) {
-    if (u8_level == 0) {
-        bcm2835_gpio_write(u8_pin, HIGH);
-    } else {
-        bcm2835_gpio_write(u8_pin, LOW);
-    }
+    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH;
 }
 
-void clock_in_dot_correction(uint8_t * u8_dot_correction, uint16_t u16_len_dot_correction) {
+void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
     int i;
-    set_pin_high(DCPRG);
-    set_pin_high(VPRG);
-    for (i = 0; i < u16_len_dot_correction; i++) {
-        send_dot_correction(u8_dot_correction[i]);
+    set_pin(DCPRG, HIGH);
+    set_pin(VPRG, HIGH);
+    for (i = 0; i < u16_data_len; i++) {
+        send_dot_correction(u8_data[i]);
     }
     latch_data();
-    set_pin_low(VPRG);
+    set_pin(VPRG, LOW);
+    printf("DC setup complete\n")
 }
 
-void send_dot_correction(u8 u8_dot_correction) {
+void send_dot_correction(uint8_t u8_dot_correction) {
     int i;
     for (i = 0; i < DC_LENGTH; i++) {
-        bit = u8_dot_correction & (0x01 << i);
-        set_pin(SIN, bit)
-        set_pin(SCLK, True)
-        set_pin(SCLK, False)
+        bit = (u8_dot_correction >> i) & 0x01;
+        set_pin(SIN, bit);
+        set_pin(SCLK, HIGH);
+        set_pin(SCLK, LOW);
     }
 }
 
-void setPinByArray(uint8_t * intArray, int lenArray) {
+void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
     int i;
-    for (i = 0; i < lenArray; i++) {
-        if (intArray[i] == 0) {
-            set_pin(0);
-        } else {
-            set_pin(1);
-        }
-        sleep(1);
+    set_pin(BLANK, HIGH);
+    for (i = 0; i < u16_data_len; i++) {
+        send_greyscale(u16_data[i]);
+    }
+    latch_data();
+    set_pin(BLANK, LOW);
+
+    if (u8_first_gs_cycle == True) {
+        // toggle SCLK one exta time on the first grey-scale clock in
+        set_pin(SCLK, HIGH);
+        set_pin(SCLK, LOW);
+        u8_first_gs_cycle = False;
+        printf("GC first transfer complete\n")
     }
 }
 
-    def clock_in_grey_scale_data(self, data_to_send):
-        set_pin(BLANK, True)
+void send_greyscale(uint16_t u16_greyscale) {
+    int i;
+    for (i = 0; i < GS_LENGTH; i++) {
+        bit = (u16_greyscale >> i) & 0x01;
+        set_pin(SIN, bit);
+        set_pin(SCLK, HIGH);
+        set_pin(SCLK, LOW);
+    }
+}
 
-        for v in data_to_send:
-            self.send_gs_byte(v)
+// Signal that data has been latched in
+void latch_data(void) {
+    set_pin(XLAT, HIGH);
+    set_pin(XLAT, LOW);
+}
 
-        self.latch_data()
-        set_pin(BLANK, False)
-
-        if self._first_gs_cycle:
-            # toggle SCLK one exta time on the first grey-scale clock in.
-            set_pin(SCLK, True)
-            set_pin(SCLK, False)
-            self._first_gs_cycle = False
-            self._echo('First grey-scale clock in complete')
-
-    @staticmethod
-    def send_gs_byte(value_to_send, no_bits=12):
-        """ Clock in one grey-scale byte. """
-        for i in range(no_bits):
-            bit = (value_to_send >> i) & 0x01
-            set_pin(SIN, bit)
-            set_pin(SCLK, True)
-            set_pin(SCLK, False)
-
-    @staticmethod
-    def latch_data():
-        """ Signal that data has been latched in. """
-        set_pin(XLAT, True)
-        set_pin(XLAT, False)
-
-    @staticmethod
-    def toggle_gsclk(times=4096):
-        """ Clear the GSCLK line and then toggle it the specified number of
-            times.
-
-            :param int times:
-                How many times to toggle the GSCLK. Each time the clock is
-                toggled it increments by one. If the intensity value of
-                an LED is greater than the current count, it is turned on.
-                Otherwise it is turned off. The default value is 4096. Other
-                counts won't cover the full grey-scale intensity range.
-
-            The GSCLK controls the PWM cycles of the LEDs and so must
-            be continually clocked for the LEDs to be PWMed.
-        """
-        # clear GSCLK
-        set_pin(BLANK, True)
-        set_pin(BLANK, False)
-        # increment the grey-scale count
-        for i in xrange(times):
-            set_pin(GSCLK, True)
-            set_pin(GSCLK, False)
-
-
-def set_pin(pin, value):
-    """ Set GPIO pin.
-
-        This inverts the value set to compensate for the
-        hardware inversion that happens in between the Pi
-        and the LED driver chips.
-    """
-    if value:
-        GPIO.output(pin, False)
-    else:
-        GPIO.output(pin, True)
-
-
-def get_pin(pin):
-    """ Read GPIO pin.
-
-        This inverts the value set to compensate for the
-        hardware inversion that happens in between the Pi
-        and the LED driver chips.
-    """
-    return not GPIO.input(pin)
+/*
+ *  Clear the GSCLK line and then toggle it the specified number of
+ *  times.
+ *
+ *  :param int times:
+ *      How many times to toggle the GSCLK. Each time the clock is
+ *      toggled it increments by one. If the intensity value of
+ *      an LED is greater than the current count, it is turned on.
+ *      Otherwise it is turned off. The default value is 4096. Other
+ *      counts won't cover the full grey-scale intensity range.
+ *
+ *  The GSCLK controls the PWM cycles of the LEDs and so must
+ *  be continually clocked for the LEDs to be PWMed.
+ */
+void toggle_gsclk(void) {
+    int i;
+    set_pin(BLANK, HIGH);
+    set_pin(BLANK, LOW);
+    for (i = 0; i < GS_CLOCK_CYCLES; i++) {
+        set_pin(GSCLK, HIGH);
+        set_pin(GSCLK, LOW);
+    }
+}
