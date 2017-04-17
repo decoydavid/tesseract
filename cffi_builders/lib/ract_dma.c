@@ -109,6 +109,8 @@ void send_dot_correction(uint8_t u8_dot_correction) {
 void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
     uint16_t u16_gs_clk_counter;
     uint16_t u16_gs_data_counter;
+    uint8_t u8_bit;
+    uint16_t u16_i;
     int i;
 
     if (u8_first_gs_cycle == TRUE) {
@@ -124,38 +126,31 @@ void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
     u16_gs_clk_counter = 0;
     u16_gs_data_counter = 0;
     set_pin(BLANK, LOW);
-    for (;;) {
-        if (u16_gs_clk_counter >= GS_CLOCK_CYCLES) {
-            set_pin(BLANK, HIGH);
-            set_pin(XLAT, HIGH);
-            set_pin(XLAT, LOW);
-            if (u8_first_gs_cycle == TRUE) {
-                u8_first_gs_cycle = FALSE;
-                set_pin(SCLK, HIGH);
-                set_pin(SCLK, LOW);
-                printf("GC first transfer complete\n");
-            }
-            break;
-        } else {
-            if (u16_gs_data_counter < u16_data_len) {
-                uint8_t u8_bit;
-                uint16_t u16_i;
-                for (u16_i = 0; u16_i < GS_LENGTH; u16_i++) {
-                    u8_bit = (u16_data[u16_gs_data_counter] >> u16_i) & 0x01;
-                    set_pin(SIN, u8_bit);
-                    set_pin(SCLK, HIGH);
-                    set_pin(SCLK, LOW);
-                    set_pin(GSCLK, HIGH);
-                    set_pin(GSCLK, LOW);
-                    u16_gs_clk_counter++;
-                }
-                u16_gs_data_counter++;
-            } else {
-                set_pin(GSCLK, HIGH);
-                set_pin(GSCLK, LOW);
-                u16_gs_clk_counter++;
-            }
+
+    for (u16_gs_data_counter = 0; u16_gs_data_counter < u16_data_len; u16_gs_data_counter++) {
+        for (u16_i = 0; u16_i < GS_LENGTH; u16_i++) {
+            u8_bit = (u16_data[u16_gs_data_counter] >> u16_i) & 0x01;
+            set_pin(SIN, u8_bit);
+            set_pin(SCLK, HIGH);
+            set_pin(SCLK, LOW);
+            set_pin(GSCLK, HIGH);
+            set_pin(GSCLK, LOW);
+            u16_gs_clk_counter++;
         }
+    }
+    for (;u16_gs_clk_counter < GS_CLOCK_CYCLES; u16_gs_clk_counter++) {
+        set_pin(GSCLK, HIGH);
+        set_pin(GSCLK, LOW);
+    }
+
+    set_pin(BLANK, HIGH);
+    set_pin(XLAT, HIGH);
+    set_pin(XLAT, LOW);
+    if (u8_first_gs_cycle == TRUE) {
+        u8_first_gs_cycle = FALSE;
+        set_pin(SCLK, HIGH);
+        set_pin(SCLK, LOW);
+        printf("GC first transfer complete\n");
     }
 }
 
