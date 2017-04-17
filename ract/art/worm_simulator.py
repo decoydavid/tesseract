@@ -63,7 +63,7 @@ class Worm(object):
 class WormSimulator(ArtworkRenderer):
     """ Move a growing worm around the cube til it crashes without options. """
 
-    NAME = 'worm-single'
+    NAME = 'worm-sim'
     SECONDS_PER_STEP = 0.2
 
     def __init__(self):
@@ -72,7 +72,7 @@ class WormSimulator(ArtworkRenderer):
         self._worms = None
         self._stepper = None
 
-    def setup(self, fps, number_of_worms=20):
+    def setup(self, fps, number_of_worms=1):
         """ Initialize worms. The head is always the last item in the list
         :param fps:
         :param number_of_worms:

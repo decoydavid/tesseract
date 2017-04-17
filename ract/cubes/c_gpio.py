@@ -3,14 +3,14 @@
 from ract.interfaces import CubeController
 
 
-class GPIOController(CubeController):
-    """ GPIO cube that renders by directly toggling pins using GPIO. """
+class CffiGpioController(CubeController):
+    """ GPIO cube that renders by directly toggling pins using GPIO via CFFI. """
 
-    NAME = 'gpio'
+    NAME = 'c_gpio'
 
     def setup(self, fps, debug):
-        from ._gpio_impl import GpioCube
-        self._gpio_cube = GpioCube()
+        from ._c_gpio_impl import CffiGpioCube
+        self._gpio_cube = CffiGpioCube(debug)
         self._gpio_cube.setup(fps)
 
     def teardown(self):

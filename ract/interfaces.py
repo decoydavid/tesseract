@@ -13,11 +13,13 @@ class CubeController(object):
                 cube.render(frame)
                 cube.tick()
     """
-    def setup(self, fps):
+    def setup(self, fps, debug):
         """ Perform any setup needed.
 
             :param float fps:
                 The frames per second that the artwork will be rendered at.
+            :param boolean debug:
+                Enable additional debugging.
         """
 
     def teardown(self):

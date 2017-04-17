@@ -31,7 +31,6 @@ setup(
         [console_scripts]
         ract=ract.cli:ract
         ract-debug=ract.debugcli:ractdebug
-        ract-dma=ract._ract_dma:ract_dma_run
     ''',
     classifiers=[
         'Development Status :: 4 - Beta',
