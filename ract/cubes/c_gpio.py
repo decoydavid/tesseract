@@ -8,9 +8,9 @@ class CffiGpioController(CubeController):
 
     NAME = 'c_gpio'
 
-    def setup(self, fps):
+    def setup(self, fps, debug):
         from ._c_gpio_impl import CffiGpioCube
-        self._gpio_cube = CffiGpioCube()
+        self._gpio_cube = CffiGpioCube(debug)
         self._gpio_cube.setup(fps)
 
     def teardown(self):

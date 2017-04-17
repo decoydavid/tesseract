@@ -22,12 +22,17 @@ class CffiGpioCube(object):
     GPIO.
     """
 
-    def __init__(self):
+    def __init__(self, debug):
         """ Initialization
         """
         self._fps = None
         self._flattened_frame_layers = None
         self.RPI_GPIO_initialized = None
+        self.mapping = np.array(range(0, 16, 2) + range(15, 0, -2) + range(16, 32, 2) + range(31, 16, -2) +
+                           range(32, 48, 2) + range(47, 32, -2) + range(48, 64, 2) + range(63, 48, -2) +
+                           range(64, 80, 1))
+        self.reordered_layer = np.zeros(NO_CHIPS * OUTPUTS_PER_CHIP, dtype=np.uint16)
+        self.debug = debug
 
     def setup(self, fps):
         """ Set up the cube hardware abstraction layer, which means:
@@ -39,7 +44,9 @@ class CffiGpioCube(object):
         """
         faulthandler.enable()
         ract_dma.initialize_RPI_GPIO()
-        ract_dma.setup_interface_pins()
+        ract_dma.setup_interface()
+        if self.debug:
+            ract_dma.enable_layer_debug()
         dot_correction_data = np.full(NO_CHIPS * OUTPUTS_PER_CHIP, DC_FULL_INTENSITY, np.uint8)
         c_pointer = ffi.cast("uint8_t *", ffi.from_buffer(dot_correction_data))
         ract_dma.clock_in_dot_correction(c_pointer, len(dot_correction_data))
@@ -66,5 +73,6 @@ class CffiGpioCube(object):
         :return:
         """
         for layer in self._flattened_frame_layers:
-            c_pointer = ffi.cast("uint16_t *", ffi.from_buffer(layer))
-            ract_dma.clock_in_grey_scale_data(c_pointer, len(layer))
+            np.put(self.reordered_layer, self.mapping, layer.astype(int))
+            c_pointer = ffi.cast("uint16_t *", ffi.from_buffer(self.reordered_layer))
+            ract_dma.clock_in_grey_scale_data(c_pointer, len(self.reordered_layer))

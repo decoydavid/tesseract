@@ -8,7 +8,7 @@ class GPIOController(CubeController):
 
     NAME = 'gpio'
 
-    def setup(self, fps):
+    def setup(self, fps, debug):
         from ._gpio_impl import GpioCube
         self._gpio_cube = GpioCube()
         self._gpio_cube.setup(fps)

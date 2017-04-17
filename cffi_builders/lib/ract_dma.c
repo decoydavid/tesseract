@@ -22,6 +22,7 @@
 
 // Local global variables
 uint8_t     u8_first_gs_cycle;
+uint8_t     u8_debug_layer;
 
 // Initialize the BCM
 int initialize_RPI_GPIO(void) {
@@ -37,7 +38,7 @@ int close_RPI_GPIO(void) {
 }
 
 // Set initial pin directions and initial values
-void setup_interface_pins(void) {
+void setup_interface(void) {
     bcm2835_gpio_fsel(GSCLK, OUT);
     bcm2835_gpio_fsel(DCPRG, OUT);
     bcm2835_gpio_fsel(VPRG, OUT);
@@ -52,20 +53,26 @@ void setup_interface_pins(void) {
     set_pin(XLAT, LOW);
     set_pin(BLANK, HIGH);
     u8_first_gs_cycle = TRUE;
+    u8_debug_layer = FALSE;
     printf("Interface configured\n");
+}
+
+void enable_layer_debug(void) {
+    u8_debug_layer = TRUE;
+    printf("Layer debug enabled\n");
 }
 
 // Compensate for board protection logic flip
 void set_pin(uint8_t u8_pin, uint8_t u8_level) {
-    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH);
-    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH);
-    bcm2835_gpio_write(u8_pin, (u8_level & HIGH) ? LOW : HIGH);
+    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
+    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
 }
 
 void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
     int i;
     set_pin(DCPRG, HIGH);
     set_pin(VPRG, HIGH);
+    bcm2835_delay(100);
     for (i = 0; i < u16_data_len; i++) {
         send_dot_correction(u8_data[i]);
     }
@@ -102,9 +109,17 @@ void send_dot_correction(uint8_t u8_dot_correction) {
 void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
     uint16_t u16_gs_clk_counter;
     uint16_t u16_gs_data_counter;
+    int i;
 
     if (u8_first_gs_cycle == TRUE) {
         set_pin(VPRG, LOW);
+        bcm2835_delay(100);
+    }
+    if (u8_debug_layer) {
+        for (i = 0; i < u16_data_len; i++) {
+            printf("%d", u16_data[i] / 4095);
+        }
+        printf("\n");
     }
     u16_gs_clk_counter = 0;
     u16_gs_data_counter = 0;

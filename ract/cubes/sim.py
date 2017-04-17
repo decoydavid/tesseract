@@ -8,7 +8,7 @@ class SimulatedController(CubeController):
 
     NAME = 'sim'
 
-    def setup(self, fps):
+    def setup(self, fps, debug):
         from ._sim_impl import SimCube
         self._sim_cube = SimCube()
         self._sim_cube.setup(fps)

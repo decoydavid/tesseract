@@ -11,7 +11,8 @@ ffi = cffi.FFI()
 ffi.cdef("""
 int initialize_RPI_GPIO(void);
 int close_RPI_GPIO(void);
-void setup_interface_pins(void);
+void enable_layer_debug(void);
+void setup_interface(void);
 void set_pin(uint8_t u8_pin, uint8_t u8_level);
 void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len);
 void send_dot_correction(uint8_t u8_dot_correction);

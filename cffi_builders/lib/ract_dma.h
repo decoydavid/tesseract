@@ -3,7 +3,9 @@ int initialize_RPI_GPIO(void);
 
 int close_RPI_GPIO(void);
 // Set initial pin directions and initial values
-void setup_interface_pins(void);
+void setup_interface(void);
+
+void enable_layer_debug(void);
 // Compensate for board protection logic flip
 void set_pin(uint8_t u8_pin, uint8_t u8_level);
 

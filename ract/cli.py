@@ -25,27 +25,30 @@ ART = {art.NAME: art for art in ART}
     "--seconds", default=10.,
     help="Number of seconds to run for. Default is 10.")
 @click.option(
-    "--disp_timer", default=False,
+    "--disp-timer", default=False, is_flag=True,
     help="Display timer of how long rendering and data transfer take.")
-def ract(cube, art, fps, seconds, disp_timer):
+@click.option(
+    "--debug", default=False, is_flag=True,
+    help="Enable debugging.")
+def ract(cube, art, fps, seconds, disp_timer, debug):
     """ Run the tesseract. """
     cube = CUBES[cube]()
     art = ART[art]()
 
     art.setup(fps)
-    cube.setup(fps)
+    cube.setup(fps, debug)
 
     start = time.time()
-    _timer = time.time()
+    timer = time.time()
     while time.time() - start < seconds:
         frame = art.next_frame()
         cube.render(frame)
         if disp_timer:
-            click.echo("Time to render art: %f" % (time.time() - _timer))
-            _timer = time.time()
+            click.echo("Time to render art: %f" % (time.time() - timer))
+            timer = time.time()
         cube.tick()
         if disp_timer:
-            click.echo("Time to display art: %f" % (time.time() - _timer))
-            _timer = time.time()
+            click.echo("Time to display art: %f" % (time.time() - timer))
+            timer = time.time()
 
     cube.teardown()
