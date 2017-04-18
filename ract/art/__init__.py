@@ -6,6 +6,7 @@ from .game_of_life_2d import GameOfLife2D
 from .game_of_life_3d import GameOfLife3D
 from .worm_simulator import WormSimulator
 from .test_corners import TestCorners
+from .dot_rise_fall import DotRiseFall
 
 ART = [
     AllOn,
@@ -14,4 +15,5 @@ ART = [
     GameOfLife3D,
     WormSimulator,
     TestCorners,
+    DotRiseFall,
 ]
