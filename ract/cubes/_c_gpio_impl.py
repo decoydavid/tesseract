@@ -43,13 +43,16 @@ class CffiGpioCube(object):
         :return:
         """
         faulthandler.enable()
+        # ract_dma.initialize_RPI_GPIO()
+        # ract_dma.setup_interface()
+        # if self.debug:
+        #     ract_dma.enable_layer_debug()
+        # dot_correction_data = np.full(NO_CHIPS * OUTPUTS_PER_CHIP, DC_FULL_INTENSITY, np.uint8)
+        # c_pointer = ffi.cast("uint8_t *", ffi.from_buffer(dot_correction_data))
+        # ract_dma.clock_in_dot_correction(c_pointer, len(dot_correction_data))
         ract_dma.initialize_RPI_GPIO()
-        ract_dma.setup_interface()
-        if self.debug:
-            ract_dma.enable_layer_debug()
-        dot_correction_data = np.full(NO_CHIPS * OUTPUTS_PER_CHIP, DC_FULL_INTENSITY, np.uint8)
-        c_pointer = ffi.cast("uint8_t *", ffi.from_buffer(dot_correction_data))
-        ract_dma.clock_in_dot_correction(c_pointer, len(dot_correction_data))
+        ract_dma.TLC5940_Init()
+        ract_dma.TLC5940_ClockInDC()
         self._fps = fps
         self._flattened_frame_layers = None
 
@@ -73,6 +76,14 @@ class CffiGpioCube(object):
         :return:
         """
         for layer in self._flattened_frame_layers:
+<<<<<<< Updated upstream
             np.put(self.reordered_layer, self.mapping, layer.astype(int))
             c_pointer = ffi.cast("uint16_t *", ffi.from_buffer(self.reordered_layer))
             ract_dma.clock_in_grey_scale_data(c_pointer, len(self.reordered_layer))
+=======
+            # np.put(self.reordered_layer, self.mapping, layer.astype(np.uint16))
+            c_pointer = ffi.cast("uint16_t *", ffi.from_buffer(layer))
+            ract_dma.set_gs_data(c_pointer, len(self.reordered_layer))
+            ract_dma.TLC5940_SetGS_And_GS_PWM()
+            # ract_dma.clock_in_grey_scale_data(c_pointer, len(self.reordered_layer))
+>>>>>>> Stashed changes
