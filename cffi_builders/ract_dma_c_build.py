@@ -9,13 +9,6 @@ from helpers import get_inc_dir, get_lib_dir, get_c_lib
 ffi = cffi.FFI()
 
 ffi.cdef("""
-int initialize_RPI_GPIO(void);
-int close_RPI_GPIO(void);
-void enable_layer_debug(void);
-void setup_interface(void);
-void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len);
-void send_dot_correction(uint8_t u8_dot_correction);
-void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len);
 void set_gs_data(uint16_t * u16_data, uint16_t u16_data_len);
 void set_pin(int pin, int value);
 uint8_t get_pin(int pin);

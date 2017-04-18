@@ -62,13 +62,6 @@ void enable_layer_debug(void) {
     printf("Layer debug enabled\n");
 }
 
-<<<<<<< Updated upstream
-// Compensate for board protection logic flip
-void set_pin(uint8_t u8_pin, uint8_t u8_level) {
-    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
-    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
-}
-=======
 //// Compensate for board protection logic flip
 //void set_pin(uint8_t u8_pin, uint8_t u8_level) {
 //    if (u8_level > 0) {
@@ -89,7 +82,6 @@ void set_pin(uint8_t u8_pin, uint8_t u8_level) {
 ////    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
 ////    bcm2835_delayMicroseconds(100);
 //}
->>>>>>> Stashed changes
 
 void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
     int i;

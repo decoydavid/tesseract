@@ -76,14 +76,7 @@ class CffiGpioCube(object):
         :return:
         """
         for layer in self._flattened_frame_layers:
-<<<<<<< Updated upstream
             np.put(self.reordered_layer, self.mapping, layer.astype(int))
-            c_pointer = ffi.cast("uint16_t *", ffi.from_buffer(self.reordered_layer))
-            ract_dma.clock_in_grey_scale_data(c_pointer, len(self.reordered_layer))
-=======
-            # np.put(self.reordered_layer, self.mapping, layer.astype(np.uint16))
             c_pointer = ffi.cast("uint16_t *", ffi.from_buffer(layer))
             ract_dma.set_gs_data(c_pointer, len(self.reordered_layer))
             ract_dma.TLC5940_SetGS_And_GS_PWM()
-            # ract_dma.clock_in_grey_scale_data(c_pointer, len(self.reordered_layer))
->>>>>>> Stashed changes
