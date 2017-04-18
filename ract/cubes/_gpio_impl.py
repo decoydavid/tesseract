@@ -12,6 +12,9 @@ import RPi.GPIO as GPIO
 from ract.utils import (
     GSCLK, DCPRG, SCLK, XLAT, BLANK, SIN, VPRG, LAYER_MASKS)
 
+NO_CHIPS = 5
+OUTPUTS_PER_CHIP = 16
+
 
 class GpioCube(object):
     """ Raspberry Pi 1 hardware abstraction layer (HAL) for controlling the tesseract by directly toggling pins using
@@ -24,6 +27,11 @@ class GpioCube(object):
         self._fps = None
         self._flattened_frame_layers = None
         self._tesseract = None
+        self.mapping = np.array(range(0, 16, 2) + range(15, 0, -2) + range(16, 32, 2) + range(31, 16, -2) +
+                           range(32, 48, 2) + range(47, 32, -2) + range(48, 64, 2) + range(63, 48, -2) +
+                           range(64, 80, 1))
+        self.reordered_layer = np.zeros(NO_CHIPS * OUTPUTS_PER_CHIP, dtype=np.uint16)
+
 
     def setup(self, fps):
         """ Set up the cube hardware abstraction layer, which means:
@@ -60,7 +68,8 @@ class GpioCube(object):
         :return:
         """
         for layer in self._flattened_frame_layers:
-            self._tesseract.clock_in_grey_scale_data(layer)
+            np.put(self.reordered_layer, self.mapping, layer.astype(np.uint16))
+            self._tesseract.clock_in_grey_scale_data(self.reordered_layer)
             self._tesseract.toggle_gsclk()
 
 

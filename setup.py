@@ -1,9 +1,12 @@
 from setuptools import setup
+from sys import platform
 
-
-cffi_modules = [
-    'cffi_builders/ract_dma_c_build.py:ffi',
-]
+if platform == 'darwin':
+    cffi_modules = []
+else:
+    cffi_modules = [
+        'cffi_builders/ract_dma_c_build.py:ffi',
+    ]
 
 
 setup(

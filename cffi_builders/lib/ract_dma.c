@@ -15,7 +15,7 @@
 // TLC5940 references
 #define DC_LENGTH       6
 #define GS_LENGTH       12
-#define GS_CLOCK_CYCLES 4096
+#define GS_CLOCK_CYCLES 2000
 // Internal references
 #define TRUE            0x1
 #define FALSE           0x0
@@ -64,20 +64,38 @@ void enable_layer_debug(void) {
 
 // Compensate for board protection logic flip
 void set_pin(uint8_t u8_pin, uint8_t u8_level) {
-    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
-    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
+    if (u8_level > 0) {
+        bcm2835_gpio_write(u8_pin, LOW);
+        bcm2835_gpio_write(u8_pin, LOW);
+        bcm2835_gpio_write(u8_pin, LOW);
+        bcm2835_gpio_write(u8_pin, LOW);
+        bcm2835_gpio_write(u8_pin, LOW);
+    } else {
+        bcm2835_gpio_write(u8_pin, HIGH);
+        bcm2835_gpio_write(u8_pin, HIGH);
+        bcm2835_gpio_write(u8_pin, HIGH);
+        bcm2835_gpio_write(u8_pin, HIGH);
+        bcm2835_gpio_write(u8_pin, HIGH);
+    }
+//    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
+//    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
+//    bcm2835_gpio_write(u8_pin, u8_level ? LOW : HIGH);
+//    bcm2835_delayMicroseconds(100);
 }
 
 void clock_in_dot_correction(uint8_t * u8_data, uint16_t u16_data_len) {
     int i;
     set_pin(DCPRG, HIGH);
+    bcm2835_delay(100);
     set_pin(VPRG, HIGH);
     bcm2835_delay(100);
     for (i = 0; i < u16_data_len; i++) {
         send_dot_correction(u8_data[i]);
     }
     set_pin(XLAT, HIGH);
+    bcm2835_delay(100);
     set_pin(XLAT, LOW);
+    printf("\n");
     printf("DC setup complete\n");
 }
 
@@ -88,6 +106,7 @@ void send_dot_correction(uint8_t u8_dot_correction) {
         u8_bit = (u8_dot_correction >> i) & 0x01;
         set_pin(SIN, u8_bit);
         set_pin(SCLK, HIGH);
+        printf("%d", u8_bit);
         set_pin(SCLK, LOW);
     }
 }
@@ -119,7 +138,7 @@ void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
     }
     if (u8_debug_layer) {
         for (i = 0; i < u16_data_len; i++) {
-            printf("%d", u16_data[i] / 4095);
+            printf("%d", u16_data[i] > 0);
         }
         printf("\n");
     }
@@ -149,7 +168,9 @@ void clock_in_grey_scale_data(uint16_t * u16_data, uint16_t u16_data_len) {
     if (u8_first_gs_cycle == TRUE) {
         u8_first_gs_cycle = FALSE;
         set_pin(SCLK, HIGH);
+        bcm2835_delay(10);
         set_pin(SCLK, LOW);
+        bcm2835_delay(10);
         printf("GC first transfer complete\n");
     }
 }
