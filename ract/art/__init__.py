@@ -7,6 +7,7 @@ from .game_of_life_3d import GameOfLife3D
 from .worm_simulator import WormSimulator
 from .test_corners import TestCorners
 from .dot_rise_fall import DotRiseFall
+from .star_field import StarField
 
 ART = [
     AllOn,
@@ -16,4 +17,5 @@ ART = [
     WormSimulator,
     TestCorners,
     DotRiseFall,
+    StarField,
 ]
