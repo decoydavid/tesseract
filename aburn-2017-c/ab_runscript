@@ -1,0 +1,5 @@
+#!/bin/sh
+
+while true; do
+  sudo /home/pi/projects/ABurn-2017/gccRelease/afrikaburn_2017.exe
+done
