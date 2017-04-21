@@ -11,6 +11,6 @@ public:
 
 private:
 
-	uint_8*		m_pData;
+	SDL_Surface* surf;
 	vector2i	m_iResolution;
 };
