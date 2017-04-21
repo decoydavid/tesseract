@@ -20,8 +20,9 @@ public:
 	void RenderString(Lattice &xLattice, const std::string &strText, const vector2i &vStart);
 	vector3i MapToWoorldCoord(const vector2i &vVirtualPos) const;
 	int MeasureString(const std::string &strText) const;
+
 private:
-
 	std::vector<TextPage_s>		m_vecPages;
-
+  float fTimer;
+	unsigned char ReverseBits(unsigned char b);
 };

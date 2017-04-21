@@ -10,6 +10,7 @@
 
 TextFileGenerator::TextFileGenerator(int iResolution)
 {
+	fTimer = 0.0f;
 	TextPage_s xPage;
 	xPage.vVertDir = vector3i(0, 0, -1);
 	xPage.iWidth = iResolution - 1;
@@ -28,8 +29,6 @@ TextFileGenerator::TextFileGenerator(int iResolution)
  	m_vecPages.push_back(xPage);*/
 }
 
-
-float fTimer = 0.0f;
 
 vector3i TextFileGenerator::MapToWoorldCoord(const vector2i &vVirtualP) const
 {
@@ -60,7 +59,7 @@ vector3i TextFileGenerator::MapToWoorldCoord(const vector2i &vVirtualP) const
 	return vWorldPos;
 }
 
-unsigned char ReverseBits(unsigned char b) {
+unsigned char TextFileGenerator::ReverseBits(unsigned char b) {
 	b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
 	b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
 	b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
