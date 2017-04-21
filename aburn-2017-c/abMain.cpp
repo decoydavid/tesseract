@@ -16,7 +16,7 @@
 #include "abWormholeGenerator.h"
 #include "abCheckerboardGenerator.h"
 #ifdef OPENGL_RENDER
-#include "abBitmapTestGenerator.h"
+// #include "abBitmapTestGenerator.h"
 #endif
 #include "abClothGenerator.h"
 #include "abSpinnyClothGenerator.h"
@@ -91,7 +91,9 @@ void Render()
 }
 #endif
 
+#ifdef BCM2835_RENDER
 #include <bcm2835.h>
+#endif
 
 #define TLC5940_N_AVAILABLE 	5
 #define TLC5940_N 		5
@@ -182,6 +184,7 @@ uint16_t row_mask[16 * 8] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF,
 };
 
+#ifdef BCM2835_RENDER
 
 #define GSCLK  RPI_GPIO_P1_03  //Orange
 #define DCPRG  RPI_GPIO_P1_05  //Brown
@@ -327,6 +330,9 @@ void TLC5940_SetGS_And_GS_PWM(void) {
 		GSCLK_Counter++;
 	}
 }
+
+#endif
+
 /* Our program's entry point */
 int main(int argc, char *argv[])
 {
@@ -368,7 +374,7 @@ int main(int argc, char *argv[])
 	m_pLattice = new Lattice(8, 1.6f);
 
 #ifdef OPENGL_RENDER
-	m_vecGenerators.push_back(new BitmapTestGenerator());
+  // m_vecGenerators.push_back(new BitmapTestGenerator());
 #endif
 	m_vecGenerators.push_back(new SpherifyGenerator());
 	m_vecGenerators.push_back(new BitFlipGenerator(m_pLattice->GetResolution()));
@@ -392,24 +398,28 @@ int main(int argc, char *argv[])
 	m_vecGenerators.push_back(new ExpandingSphereGenerator());
 	m_iActiveGeneratorIndex = rand() % m_vecGenerators.size();
 
-
-if (!bcm2835_init()) {
+#ifdef BCM2835_RENDER
+  if (!bcm2835_init()) {
         printf("ERROR: unable to initialise bcm2835 GPIO. %d");
         return 1;
-    }
-    TLC5940_Init();
-    TLC5940_ClockInDC();	// try it both with and without this line
-    printf("1\n");
+  }
+  TLC5940_Init();
+  TLC5940_ClockInDC();	// try it both with and without this line
+  printf("1\n");
+#endif
+
 	int iTemp = 0;
 	int iNextDuration = 15 + rand() % 15;
 	timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	time_t iLastSwitchSecs = ts.tv_sec;
+
 	while(1)
 	{
 		//printf("%d", iTemp);
 		m_vecGenerators[m_iActiveGeneratorIndex]->Update(*m_pLattice);
 		//printf("%d", iTemp);
+#ifdef BCM2835_RENDER
 		for(int i = 0; i < 8; i++ )
 		{
         		memset(gsData, 0x00, sizeof(gsData));
@@ -442,6 +452,7 @@ if (!bcm2835_init()) {
            		TLC5940_SetGS_And_GS_PWM();
 		}
 		//printf("Finished one iteration!");
+#endif
 		clock_gettime(CLOCK_REALTIME, &ts);
 
 		iTemp++;
@@ -497,5 +508,5 @@ if (!bcm2835_init()) {
     SDL_Quit();
 #endif
  	printf("Shutting down");
-    return 0;
+  return 0;
 }
