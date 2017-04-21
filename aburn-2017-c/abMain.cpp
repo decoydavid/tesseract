@@ -414,12 +414,12 @@ int main(int argc, char *argv[])
 	clock_gettime(CLOCK_REALTIME, &ts);
 	time_t iLastSwitchSecs = ts.tv_sec;
 
+#ifdef BCM2835_RENDER
 	while(1)
 	{
 		//printf("%d", iTemp);
 		m_vecGenerators[m_iActiveGeneratorIndex]->Update(*m_pLattice);
 		//printf("%d", iTemp);
-#ifdef BCM2835_RENDER
 		for(int i = 0; i < 8; i++ )
 		{
         		memset(gsData, 0x00, sizeof(gsData));
@@ -452,7 +452,6 @@ int main(int argc, char *argv[])
            		TLC5940_SetGS_And_GS_PWM();
 		}
 		//printf("Finished one iteration!");
-#endif
 		clock_gettime(CLOCK_REALTIME, &ts);
 
 		iTemp++;
@@ -466,6 +465,7 @@ int main(int argc, char *argv[])
 			iNextDuration = 15 + rand() % 15;
 		}
 	}
+#endif
 
 #ifdef OPENGL_RENDER
     /* Clear our buffer with a red background */
