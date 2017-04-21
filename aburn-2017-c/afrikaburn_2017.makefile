@@ -8,7 +8,8 @@ Release_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include"
 Release_Library_Path=
 
 # Additional libraries...
-Release_Libraries=-l bcm2835 -l rt
+#Release_Libraries=-l bcm2835 -l rt
+Release_Libraries=-l rt -l SDL2 -l GL -l GLU
 
 # Preprocessor definitions...
 Release_Preprocessor_Definitions=-D GCC_BUILD
@@ -17,7 +18,8 @@ Release_Preprocessor_Definitions=-D GCC_BUILD
 Release_Implicitly_Linked_Objects=
 
 # Compiler flags...
-Release_Compiler_Flags=-O2 -g
+#Release_Compiler_Flags=-O2 -g -D BCM2835_RENDER
+Release_Compiler_Flags=-O2 -g -D OPENGL_RENDER
 
 # Builds all configurations for this project...
 .PHONY: build_all_configurations
@@ -25,16 +27,8 @@ build_all_configurations: Release
 
 # Builds the Release configuration...
 .PHONY: Release
-Release: gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o
-	gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o
-	g++ gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o
-	gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o gccRelease/afrikaburn_2017.exe
-
-# Compiles file abBitmap.cpp for the Release configuration...
--include gccRelease/abBitmap.d
-gccRelease/abBitmap.o: abBitmap.cpp
-	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -c abBitmap.cpp $(Release_Include_Path) -o gccRelease/abBitmap.o
-	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -MM abBitmap.cpp $(Release_Include_Path) > gccRelease/abBitmap.d
+Release: gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o
+	g++ gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o gccRelease/afrikaburn_2017.exe
 
 # Compiles file abFont.cpp for the Release configuration...
 -include gccRelease/abFont.d
