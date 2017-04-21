@@ -1,21 +1,14 @@
-//#define OPENGL_RENDER
-//#undef OPENGL_RENDER
-
-#ifdef OPENGL_RENDER
-//#include <windows.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
 #ifdef OPENGL_RENDER
-/* If using gl3.h */
-/* Ensure we are using opengl's core profile only */
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 
 #include <SDL2/SDL.h>
+
 #endif
 
 #undef main
