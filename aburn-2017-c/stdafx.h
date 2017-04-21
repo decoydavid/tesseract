@@ -1,8 +1,8 @@
-#define OPENGL_RENDER
-#undef OPENGL_RENDER
+//#define OPENGL_RENDER
+//#undef OPENGL_RENDER
 
 #ifdef OPENGL_RENDER
-#include <windows.h>
+//#include <windows.h>
 #endif
 
 #include <stdio.h>
@@ -12,10 +12,10 @@
 #ifdef OPENGL_RENDER
 /* If using gl3.h */
 /* Ensure we are using opengl's core profile only */
-#include <GL/GL.h>
-#include <GL/GLu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #endif
 
 #undef main
