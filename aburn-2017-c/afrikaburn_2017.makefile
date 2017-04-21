@@ -1,29 +1,22 @@
 # Compiler flags...
 CPP_COMPILER = g++
-C_COMPILER = gcc
 
 # Include paths...
-Debug_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include"
 Release_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include"
 
 # Library paths...
-Debug_Library_Path=
 Release_Library_Path=
 
 # Additional libraries...
-Debug_Libraries=
 Release_Libraries=-l bcm2835 -l rt
 
 # Preprocessor definitions...
-Debug_Preprocessor_Definitions=-D GCC_BUILD
 Release_Preprocessor_Definitions=-D GCC_BUILD
 
 # Implictly linked object files...
-Debug_Implicitly_Linked_Objects=
 Release_Implicitly_Linked_Objects=
 
 # Compiler flags...
-Debug_Compiler_Flags=-O0 -g
 Release_Compiler_Flags=-O2 -g
 
 # Builds all configurations for this project...
@@ -94,18 +87,11 @@ gccRelease/stdafx.o: stdafx.cpp
 # Creates the intermediate and output folders for each configuration...
 .PHONY: create_folders
 create_folders:
-	mkdir -p gccDebug/source
-	mkdir -p gccRelease/source
+	mkdir -p gccRelease
 
 # Cleans intermediate and output files (objects, libraries, executables)...
 .PHONY: clean
 clean:
-	rm -f gccDebug/*.o
-	rm -f gccDebug/*.d
-	rm -f gccDebug/*.a
-	rm -f gccDebug/*.so
-	rm -f gccDebug/*.dll
-	rm -f gccDebug/*.exe
 	rm -f gccRelease/*.o
 	rm -f gccRelease/*.d
 	rm -f gccRelease/*.a
