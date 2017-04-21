@@ -16,7 +16,7 @@
 #include "abWormholeGenerator.h"
 #include "abCheckerboardGenerator.h"
 #ifdef OPENGL_RENDER
-// #include "abBitmapTestGenerator.h"
+#include "abBitmapTestGenerator.h"
 #endif
 #include "abClothGenerator.h"
 #include "abSpinnyClothGenerator.h"
@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
 	m_pLattice = new Lattice(8, 1.6f);
 
 #ifdef OPENGL_RENDER
-  // m_vecGenerators.push_back(new BitmapTestGenerator());
+  m_vecGenerators.push_back(new BitmapTestGenerator());
 #endif
 	m_vecGenerators.push_back(new SpherifyGenerator());
 	m_vecGenerators.push_back(new BitFlipGenerator(m_pLattice->GetResolution()));
