@@ -3,7 +3,7 @@ CPP_COMPILER = g++
 C_COMPILER = gcc
 
 # Include paths...
-Debug_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include" 
+Debug_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include"
 Release_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include"
 
 # Library paths...
@@ -15,8 +15,8 @@ Debug_Libraries=
 Release_Libraries=-l bcm2835 -l rt
 
 # Preprocessor definitions...
-Debug_Preprocessor_Definitions=-D GCC_BUILD 
-Release_Preprocessor_Definitions=-D GCC_BUILD 
+Debug_Preprocessor_Definitions=-D GCC_BUILD
+Release_Preprocessor_Definitions=-D GCC_BUILD
 
 # Implictly linked object files...
 Debug_Implicitly_Linked_Objects=
@@ -28,12 +28,14 @@ Release_Compiler_Flags=-O2 -g
 
 # Builds all configurations for this project...
 .PHONY: build_all_configurations
-build_all_configurations: Release 
+build_all_configurations: Release
 
 # Builds the Release configuration...
 .PHONY: Release
-Release: gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o 
-	g++ gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o gccRelease/afrikaburn_2017.exe
+Release: gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o
+	gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o
+	g++ gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o
+	gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o gccRelease/afrikaburn_2017.exe
 
 # Compiles file abBitmap.cpp for the Release configuration...
 -include gccRelease/abBitmap.d
@@ -71,6 +73,12 @@ gccRelease/abTextGenerator.o: abTextGenerator.cpp
 	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -c abTextGenerator.cpp $(Release_Include_Path) -o gccRelease/abTextGenerator.o
 	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -MM abTextGenerator.cpp $(Release_Include_Path) > gccRelease/abTextGenerator.d
 
+# Compiles file abTextFileGenerator.cpp for the Release configuration...
+-include gccRelease/abTextFileGenerator.d
+gccRelease/abTextFileGenerator.o: abTextFileGenerator.cpp
+	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -c abTextFileGenerator.cpp $(Release_Include_Path) -o gccRelease/abTextFileGenerator.o
+	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -MM abTextFileGenerator.cpp $(Release_Include_Path) > gccRelease/abTextFileGenerator.d
+
 # Compiles file abWaveGenerator.cpp for the Release configuration...
 -include gccRelease/abWaveGenerator.d
 gccRelease/abWaveGenerator.o: abWaveGenerator.cpp
@@ -104,4 +112,3 @@ clean:
 	rm -f gccRelease/*.so
 	rm -f gccRelease/*.dll
 	rm -f gccRelease/*.exe
-
