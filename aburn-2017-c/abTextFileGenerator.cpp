@@ -18,15 +18,10 @@ TextFileGenerator::TextFileGenerator(int iResolution)
 	xPage.vStart = vector3i(0, iResolution/2, iResolution - 1);
 	xPage.vHorizDir = vector3i(1, 0, 0);
 	m_vecPages.push_back(xPage);
- 	/*xPage.vStart = vector3i(iResolution - 1, 0, iResolution - 1);
- 	xPage.vHorizDir = vector3i(0, 1, 0);
- 	m_vecPages.push_back(xPage);
- 	xPage.vStart = vector3i(iResolution - 1, iResolution - 1, iResolution - 1);
- 	xPage.vHorizDir = vector3i(-1, 0, 0);
- 	m_vecPages.push_back(xPage);
- 	xPage.vStart = vector3i(0, iResolution - 1, iResolution - 1);
- 	xPage.vHorizDir = vector3i(0, -1, 0);
- 	m_vecPages.push_back(xPage);*/
+
+  vecStringsPos = 0;
+  m_vecStrings.push_back("MESSAGE ONE");
+  m_vecStrings.push_back("HELLO TWO");
 }
 
 
@@ -115,15 +110,17 @@ void TextFileGenerator::Update(Lattice &xLattice)
 {
 	Generator::Update(xLattice);
 	fTimer += 0.01f;
-	std::string strText = "AFRIKA BURN 2017";
+	std::string strText = m_vecStrings[vecStringsPos];
 	static float fStart = 9.0f;
 	fStart -= 0.14f;
 
 	int iResolution = xLattice.GetResolution();
 	vector2i vStart((int)fStart, 0);
 
-  	if( MapToWoorldCoord(vStart).x() == -(MeasureString(strText)) )
+  if( MapToWoorldCoord(vStart).x() == -(MeasureString(strText)) ) {
   		fStart = 9.0f;
+			vecStringsPos = (vecStringsPos + 1) % m_vecStrings.size();
+	}
 	RenderString(xLattice, strText, vStart);
 
 

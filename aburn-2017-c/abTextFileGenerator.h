@@ -22,7 +22,9 @@ public:
 	int MeasureString(const std::string &strText) const;
 
 private:
-	std::vector<TextPage_s>		m_vecPages;
+	std::vector<TextPage_s> m_vecPages;
   float fTimer;
+	int vecStringsPos;
+	std::vector<std::string> m_vecStrings;
 	unsigned char ReverseBits(unsigned char b);
 };
