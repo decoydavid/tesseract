@@ -8,27 +8,32 @@ Release_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include"
 Release_Library_Path=
 
 # Additional libraries...
-#Release_Libraries=-l bcm2835 -l rt
-Release_Libraries=-l rt -l SDL2 -l GL -l GLU
+Release_Libraries=-l rt
 
 # Preprocessor definitions...
 Release_Preprocessor_Definitions=-D GCC_BUILD
 
-# Implictly linked object files...
-Release_Implicitly_Linked_Objects=
-
 # Compiler flags...
-#Release_Compiler_Flags=-O2 -g -D BCM2835_RENDER
-Release_Compiler_Flags=-O2 -g -D OPENGL_RENDER
+Release_Compiler_Flags=-O2 -g
 
-# Builds all configurations for this project...
-.PHONY: build_all_configurations
-build_all_configurations: Release
+# Default build for Raspberry Pi and real cube
+.PHONY: afrikaburn_2017
+afrikaburn_2017: Release_Libraries += -l bcm2835
+afrikaburn_2017: Release_Compiler_Flags += -D BCM2835_RENDER
+afrikaburn_2017: Release_Executable = gccRelease/afrikaburn_2017.exe
+afrikaburn_2017: Release
+
+# Build for SDL on normal laptop
+.PHONY: afrikaburn_2017_sdl
+afrikaburn_2017_sdl: Release_Libraries += -l SDL2 -l GL -l GLU
+afrikaburn_2017_sdl: Release_Compiler_Flags += -D OPENGL_RENDER
+afrikaburn_2017_sdl: Release_Executable = gccRelease/afrikaburn_2017_sdl.exe
+afrikaburn_2017_sdl: Release
 
 # Builds the Release configuration...
 .PHONY: Release
 Release: gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o
-	g++ gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o gccRelease/afrikaburn_2017.exe
+	g++ gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o $(Release_Executable)
 
 # Compiles file abBitmap.cpp for the Release configuration...
 -include gccRelease/abBitmap.d
