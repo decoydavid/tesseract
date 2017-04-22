@@ -20,8 +20,19 @@ TextFileGenerator::TextFileGenerator(int iResolution)
 	m_vecPages.push_back(xPage);
 
   vecStringsPos = 0;
-  m_vecStrings.push_back("MESSAGE ONE");
-  m_vecStrings.push_back("HELLO TWO");
+	std::ifstream msgfile;
+	std::string line;
+	msgfile.open("text_file_messages.txt", std::ios::in);
+	if (msgfile.is_open()) {
+		while (1) {
+      msgfile >> line;
+			if (msgfile.eof()) {
+				break;
+			}
+      m_vecStrings.push_back(line);
+		}
+		msgfile.close();
+  }
 }
 
 
