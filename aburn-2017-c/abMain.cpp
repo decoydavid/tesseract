@@ -1,4 +1,4 @@
-#include "stdafx.h" 
+#include "stdafx.h"
 #include "abLattice.h"
 #include "abGenerator.h"
 #include "abWaveGenerator.h"
@@ -7,6 +7,7 @@
 #include "abStarfieldGenerator.h"
 #include "abFlockGenerator.h"
 #include "abTextGenerator.h"
+#include "abTextFileGenerator.h"
 #include "abTorusGenerator.h"
 #include "abRingsGenerator.h"
 #include "abBubblesGenerator.h"
@@ -35,8 +36,8 @@ void sdldie(const char *msg)
     SDL_Quit();
     exit(1);
 }
- 
- 
+
+
 void checkSDLError(int line = -1)
 {
 #ifndef NDEBUG
@@ -50,7 +51,7 @@ void checkSDLError(int line = -1)
         }
 #endif
 }
- 
+
 
 SDL_Window *mainwindow; /* Our window handle */
 #endif
@@ -70,7 +71,7 @@ void Render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity(); // Load the Identity Matrix to reset our drawing locations
  	gluPerspective(60.0f, 1.0f, 0.1f, 100.0f);
@@ -90,7 +91,9 @@ void Render()
 }
 #endif
 
+#ifdef BCM2835_RENDER
 #include <bcm2835.h>
+#endif
 
 #define TLC5940_N_AVAILABLE 	5
 #define TLC5940_N 		5
@@ -171,16 +174,17 @@ int pin_mask[16 * 4] = {
 };
 
 uint16_t row_mask[16 * 8] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF,  
+	0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFFFF,
 };
 
+#ifdef BCM2835_RENDER
 
 #define GSCLK  RPI_GPIO_P1_03  //Orange
 #define DCPRG  RPI_GPIO_P1_05  //Brown
@@ -253,7 +257,7 @@ void test_pin(int pin, const char* name) {
     set_pin(pin, LOW);
     printf("Clear pin %s: %d\n", name, pin);
     scanf("%d", &input);
-} 
+}
 
 void TLC5940_ClockInDC(void) {
 	set_pin(DCPRG, HIGH);
@@ -263,7 +267,7 @@ void TLC5940_ClockInDC(void) {
 	printf("GS: %d, %d\n", TLC5940_N, sizeof(gsData));
 
 	uint16_t Counter = 0;
-	
+
 	for (;;) {
 		if (Counter > TLC5940_N * 96 - 1) {
 			TLC5940_Pulse(XLAT);
@@ -291,16 +295,16 @@ void TLC5940_SetGS_And_GS_PWM(void) {
 		bcm2835_delay(100);
 		firstCycleFlag = 1;
 	}
-	
+
 	uint16_t GSCLK_Counter = 0;
 	uint16_t Data_Counter = 0;
-	
+
 	set_pin(BLANK, LOW);
 	for (;;) {
 		if (GSCLK_Counter > TLC5940_N * 192 - 1) {
 //		if (GSCLK_Counter > 4095) {
 			set_pin(BLANK, HIGH);
-			TLC5940_Pulse(XLAT);			
+			TLC5940_Pulse(XLAT);
 			if (firstCycleFlag) {
 				TLC5940_Pulse(SCLK);
 				printf("First cycle end: %d\n", get_pin(VPRG));
@@ -326,39 +330,42 @@ void TLC5940_SetGS_And_GS_PWM(void) {
 		GSCLK_Counter++;
 	}
 }
+
+#endif
+
 /* Our program's entry point */
 int main(int argc, char *argv[])
 {
 #ifdef OPENGL_RENDER
     SDL_GLContext maincontext; /* Our opengl context handle */
- 
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) /* Initialize SDL's Video subsystem */
         sdldie("Unable to initialize SDL"); /* Or die on error */
- 
+
     /* Request opengl 3.2 context.
      * SDL doesn't have the ability to choose which profile at this time of writing,
      * but it should default to the core profile */
     //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
- 
+
     /* Turn on double buffering with a 24bit Z buffer.
      * You may need to change this to 16 or 32 for your system */
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
- 
+
     /* Create our window centered at 512x512 resolution */
     mainwindow = SDL_CreateWindow("afrikaburn prototype", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         512, 512, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (!mainwindow) /* Die if creation failed */
         sdldie("Unable to create window");
- 
+
     checkSDLError(__LINE__);
- 
+
     /* Create our opengl context and attach it to our window */
     maincontext = SDL_GL_CreateContext(mainwindow);
     checkSDLError(__LINE__);
- 
- 
+
+
     /* This makes our buffer swap syncronized with the monitor's vertical refresh */
     SDL_GL_SetSwapInterval(1);
 
@@ -367,7 +374,7 @@ int main(int argc, char *argv[])
 	m_pLattice = new Lattice(8, 1.6f);
 
 #ifdef OPENGL_RENDER
-	m_vecGenerators.push_back(new BitmapTestGenerator());
+  //m_vecGenerators.push_back(new BitmapTestGenerator());
 #endif
 	m_vecGenerators.push_back(new SpherifyGenerator());
 	m_vecGenerators.push_back(new BitFlipGenerator(m_pLattice->GetResolution()));
@@ -381,6 +388,7 @@ int main(int argc, char *argv[])
 	m_vecGenerators.push_back(new RingsGenerator());
 	m_vecGenerators.push_back(new TorusGenerator());
 	m_vecGenerators.push_back(new TextGenerator(m_pLattice->GetResolution()));
+  m_vecGenerators.push_back(new TextFileGenerator(m_pLattice->GetResolution()));
 	//m_vecGenerators.push_back(new FlockGenerator(50, 0.05f));
 	m_vecGenerators.push_back(new StarfieldGenerator(550, 0.05f));
 	m_vecGenerators.push_back(new StarfieldGenerator(100, 0.01f));
@@ -389,20 +397,24 @@ int main(int argc, char *argv[])
 	m_vecGenerators.push_back(new BouncyBallGenerator());
 	m_vecGenerators.push_back(new ExpandingSphereGenerator());
 	m_iActiveGeneratorIndex = rand() % m_vecGenerators.size();
-	
 
-if (!bcm2835_init()) {
+#ifdef BCM2835_RENDER
+  if (!bcm2835_init()) {
         printf("ERROR: unable to initialise bcm2835 GPIO. %d");
         return 1;
-    }
-    TLC5940_Init();
-    TLC5940_ClockInDC();	// try it both with and without this line
-    printf("1\n");
+  }
+  TLC5940_Init();
+  TLC5940_ClockInDC();	// try it both with and without this line
+  printf("1\n");
+#endif
+
 	int iTemp = 0;
 	int iNextDuration = 15 + rand() % 15;
 	timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	time_t iLastSwitchSecs = ts.tv_sec;
+
+#ifdef BCM2835_RENDER
 	while(1)
 	{
 		//printf("%d", iTemp);
@@ -453,6 +465,7 @@ if (!bcm2835_init()) {
 			iNextDuration = 15 + rand() % 15;
 		}
 	}
+#endif
 
 #ifdef OPENGL_RENDER
     /* Clear our buffer with a red background */
@@ -487,7 +500,7 @@ if (!bcm2835_init()) {
 #endif
 
 	delete m_pLattice;
- 
+
 #ifdef OPENGL_RENDER
     /* Delete our opengl context, destroy our window, and shutdown SDL */
     SDL_GL_DeleteContext(maincontext);
@@ -495,5 +508,5 @@ if (!bcm2835_init()) {
     SDL_Quit();
 #endif
  	printf("Shutting down");
-    return 0;
+  return 0;
 }

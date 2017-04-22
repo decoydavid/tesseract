@@ -1,39 +1,39 @@
 # Compiler flags...
 CPP_COMPILER = g++
-C_COMPILER = gcc
 
 # Include paths...
-Debug_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include" 
 Release_Include_Path=-I"SDL2-2.0.3/include" -I"vmmlib-release-1.6.0/include"
 
 # Library paths...
-Debug_Library_Path=
 Release_Library_Path=
 
 # Additional libraries...
-Debug_Libraries=
-Release_Libraries=-l bcm2835 -l rt
+Release_Libraries=-l rt
 
 # Preprocessor definitions...
-Debug_Preprocessor_Definitions=-D GCC_BUILD 
-Release_Preprocessor_Definitions=-D GCC_BUILD 
-
-# Implictly linked object files...
-Debug_Implicitly_Linked_Objects=
-Release_Implicitly_Linked_Objects=
+Release_Preprocessor_Definitions=-D GCC_BUILD
 
 # Compiler flags...
-Debug_Compiler_Flags=-O0 -g
 Release_Compiler_Flags=-O2 -g
 
-# Builds all configurations for this project...
-.PHONY: build_all_configurations
-build_all_configurations: Release 
+# Default build for Raspberry Pi and real cube
+.PHONY: afrikaburn_2017
+afrikaburn_2017: Release_Libraries += -l bcm2835
+afrikaburn_2017: Release_Compiler_Flags += -D BCM2835_RENDER
+afrikaburn_2017: Release_Executable = gccRelease/afrikaburn_2017.exe
+afrikaburn_2017: Release
+
+# Build for SDL on normal laptop
+.PHONY: afrikaburn_2017_sdl
+afrikaburn_2017_sdl: Release_Libraries += -l SDL2 -l GL -l GLU
+afrikaburn_2017_sdl: Release_Compiler_Flags += -D OPENGL_RENDER
+afrikaburn_2017_sdl: Release_Executable = gccRelease/afrikaburn_2017_sdl.exe
+afrikaburn_2017_sdl: Release
 
 # Builds the Release configuration...
 .PHONY: Release
-Release: gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o 
-	g++ gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o gccRelease/afrikaburn_2017.exe
+Release: gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o
+	g++ gccRelease/abBitmap.o gccRelease/abFont.o gccRelease/abGenerator.o gccRelease/abLattice.o gccRelease/abMain.o gccRelease/abTextGenerator.o gccRelease/abTextFileGenerator.o gccRelease/abWaveGenerator.o gccRelease/stdafx.o  $(Release_Library_Path) $(Release_Libraries) -Wl,-rpath,./ -o $(Release_Executable)
 
 # Compiles file abBitmap.cpp for the Release configuration...
 -include gccRelease/abBitmap.d
@@ -71,6 +71,12 @@ gccRelease/abTextGenerator.o: abTextGenerator.cpp
 	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -c abTextGenerator.cpp $(Release_Include_Path) -o gccRelease/abTextGenerator.o
 	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -MM abTextGenerator.cpp $(Release_Include_Path) > gccRelease/abTextGenerator.d
 
+# Compiles file abTextFileGenerator.cpp for the Release configuration...
+-include gccRelease/abTextFileGenerator.d
+gccRelease/abTextFileGenerator.o: abTextFileGenerator.cpp
+	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -c abTextFileGenerator.cpp $(Release_Include_Path) -o gccRelease/abTextFileGenerator.o
+	$(CPP_COMPILER) $(Release_Preprocessor_Definitions) $(Release_Compiler_Flags) -MM abTextFileGenerator.cpp $(Release_Include_Path) > gccRelease/abTextFileGenerator.d
+
 # Compiles file abWaveGenerator.cpp for the Release configuration...
 -include gccRelease/abWaveGenerator.d
 gccRelease/abWaveGenerator.o: abWaveGenerator.cpp
@@ -86,22 +92,14 @@ gccRelease/stdafx.o: stdafx.cpp
 # Creates the intermediate and output folders for each configuration...
 .PHONY: create_folders
 create_folders:
-	mkdir -p gccDebug/source
-	mkdir -p gccRelease/source
+	mkdir -p gccRelease
 
 # Cleans intermediate and output files (objects, libraries, executables)...
 .PHONY: clean
 clean:
-	rm -f gccDebug/*.o
-	rm -f gccDebug/*.d
-	rm -f gccDebug/*.a
-	rm -f gccDebug/*.so
-	rm -f gccDebug/*.dll
-	rm -f gccDebug/*.exe
 	rm -f gccRelease/*.o
 	rm -f gccRelease/*.d
 	rm -f gccRelease/*.a
 	rm -f gccRelease/*.so
 	rm -f gccRelease/*.dll
 	rm -f gccRelease/*.exe
-
