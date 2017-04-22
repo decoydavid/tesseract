@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
 	m_pLattice = new Lattice(8, 1.6f);
 
 #ifdef OPENGL_RENDER
-  m_vecGenerators.push_back(new BitmapTestGenerator());
+  //m_vecGenerators.push_back(new BitmapTestGenerator());
 #endif
 	m_vecGenerators.push_back(new SpherifyGenerator());
 	m_vecGenerators.push_back(new BitFlipGenerator(m_pLattice->GetResolution()));
