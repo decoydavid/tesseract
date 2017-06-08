@@ -39,4 +39,8 @@ nosetests.xml
 .project
 .pydevproject
 
+# Ract CFFI build files
 /ract/*.c
+
+# Afrika Burn 2017 build files
+aburn-2017-c/gccRelease/
